@@ -1,12 +1,3 @@
-scalar Date
-
-type User {
-	id: ID!
-	email: String!
-	name: String
-	runningTask: Task
-}
-
 type Task {
 	id: ID!
 	name: String!
@@ -27,21 +18,9 @@ type Event {
 	timeUpdated: Date!
 }
 
-type Query {
-	events(date: Date!): [Event!]
-	me: User
-	tasks(date: Date!): [Task!]
-}
-
-input LoginInput {
-	username: String!
-	password: String!
-}
-
 input TaskInput {
 	name: String!
 	description: String
-	status: Int
 	dueDate: Date
 }
 
@@ -50,20 +29,12 @@ input TaskUpdateInput {
 	taskFields: TaskInput!
 }
 
-input PomoInput {
-	taskId: ID!
-}
-
-type AuthPayload {
-	user: User!
-	token: String!
-}
-
-type Mutation {
-	login(input: LoginInput!): AuthPayload!
-	logout: Boolean!
+extend type Mutation {
 	taskCreate(input: TaskInput!): Task!
 	taskUpdate(input: TaskUpdateInput!): Task!
-	pomoStart(input: PomoInput!): Event!
-	pomoPause(input: PomoInput!): Event!
+}
+
+extend type Query {
+	events(date: Date!): [Event!]
+	tasks(date: Date!): [Task!]
 }

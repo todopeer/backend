@@ -1,0 +1,21 @@
+type User {
+	id: ID!
+	email: String!
+	name: String
+	runningTask: Task
+}
+
+input LoginInput {
+	email: String!
+	password: String!
+}
+
+
+extend type Query {
+	me: User
+}
+
+extend type Mutation {
+	login(input: LoginInput!): AuthPayload!
+	logout: Boolean!
+}

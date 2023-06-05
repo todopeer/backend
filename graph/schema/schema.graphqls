@@ -1,0 +1,19 @@
+scalar Date
+
+type Query {
+	ping: Boolean!
+}
+
+input PomoInput {
+	taskId: ID!
+}
+
+type AuthPayload {
+	user: User!
+	token: String!
+}
+
+type Mutation {
+	pomoStart(input: PomoInput!): Event!
+	pomoPause(input: PomoInput!): Event!
+}
