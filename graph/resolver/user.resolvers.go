@@ -10,6 +10,7 @@ import (
 	"fmt"
 
 	"github.com/flyfy1/diarier/graph/model"
+	"github.com/flyfy1/diarier/services/auth"
 )
 
 // Login is the resolver for the login field.
@@ -54,8 +55,8 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 	// It depends on your setup and needs.
 
 	// For now, we'll just return true indicating the user is logged out.
-	user, ok := ctx.Value("user").(*model.User)
-	if !ok {
+	user := auth.UserFromContext(ctx)
+	if user == nil {
 		return false, errors.New("could not find user from context")
 	}
 
@@ -78,9 +79,6 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 	// Get user info from context. The actual implementation depends on how you handle authentication.
-	user, ok := ctx.Value("user").(*model.User)
-	if !ok {
-		return nil, errors.New("could not find user from context")
-	}
-	return user, nil
+	user := auth.UserFromContext(ctx)
+	return convertToGraphUserModel(user)
 }

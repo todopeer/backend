@@ -1,5 +1,7 @@
 scalar Date
 
+directive @auth on FIELD_DEFINITION
+
 type Query {
 	ping: Boolean!
 }
@@ -14,6 +16,6 @@ type AuthPayload {
 }
 
 type Mutation {
-	pomoStart(input: PomoInput!): Event!
-	pomoPause(input: PomoInput!): Event!
+	pomoStart(input: PomoInput!): Event! @auth
+	pomoPause(input: PomoInput!): Event! @auth
 }

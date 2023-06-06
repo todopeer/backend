@@ -1,30 +1,13 @@
 package resolver
 
 import (
-	"fmt"
-	"time"
-
-	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/flyfy1/diarier/graph/model"
 	"github.com/flyfy1/diarier/orm"
-)
-
-const (
-	jwtKey            = "top-secret-key" // Use a strong secret key for your JWT tokens
-	jwtExpireDuration = 72 * time.Hour   // Tokens will expire after 72 hours
+	"github.com/flyfy1/diarier/services/auth"
 )
 
 func generateToken(user *orm.User) (string, error) {
-	// Create the Claims
-	claims := &jwt.StandardClaims{
-		ExpiresAt: time.Now().Add(jwtExpireDuration).Unix(),
-		Issuer:    "diarier",
-		Subject:   fmt.Sprintf("%d", user.ID),
-		Id:        fmt.Sprintf("%d", user.SessionID),
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(jwtKey))
+	return auth.GetTokenFromUser(user)
 }
 func convertToGraphUserModel(user *orm.User) (*model.User, error) {
 	// // TODO: lazy load the Task field instead

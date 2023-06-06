@@ -12,10 +12,10 @@ input LoginInput {
 
 
 extend type Query {
-	me: User
+	me: User @auth
 }
 
 extend type Mutation {
 	login(input: LoginInput!): AuthPayload!
-	logout: Boolean!
+	logout: Boolean! @auth
 }

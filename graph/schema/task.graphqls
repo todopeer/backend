@@ -30,11 +30,11 @@ input TaskUpdateInput {
 }
 
 extend type Mutation {
-	taskCreate(input: TaskInput!): Task!
-	taskUpdate(input: TaskUpdateInput!): Task!
+	taskCreate(input: TaskInput!): Task! @auth
+	taskUpdate(input: TaskUpdateInput!): Task! @auth
 }
 
 extend type Query {
-	events(date: Date!): [Event!]
-	tasks(date: Date!): [Task!]
+	events(date: Date!): [Event!] @auth
+	tasks(date: Date!): [Task!] @auth
 }

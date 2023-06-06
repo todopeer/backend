@@ -71,7 +71,7 @@ func (u *UserORM) DeleteUser(user *User) error {
 // GetTasksByUserID retrieves tasks for a specific user
 func (t *UserORM) GetUserByID(userID int64) (*User, error) {
 	user := &User{}
-	if err := t.db.Where("user_id = ?", userID).First(&user).Error; err != nil {
+	if err := t.db.Where("id = ?", userID).First(&user).Error; err != nil {
 		return nil, err
 	}
 	return user, nil
