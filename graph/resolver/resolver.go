@@ -10,6 +10,11 @@ import "github.com/flyfy1/diarier/orm"
 
 type ResolverOption func(*Resolver)
 
+func ResolverOptionWithEventOrm(eventOrm *orm.EventOrm) ResolverOption {
+	return func(r *Resolver) {
+		r.eventOrm = eventOrm
+	}
+}
 func ResolverOptionWithUserOrm(userOrm *orm.UserORM) ResolverOption {
 	return func(r *Resolver) {
 		r.userORM = userOrm
@@ -21,7 +26,7 @@ func ResolverOptionWithTaskOrm(taskOrm *orm.TaskORM) ResolverOption {
 	}
 }
 
-func NewResolver(options... ResolverOption) *Resolver {
+func NewResolver(options ...ResolverOption) *Resolver {
 	r := &Resolver{}
 	for _, option := range options {
 		option(r)
@@ -30,6 +35,7 @@ func NewResolver(options... ResolverOption) *Resolver {
 }
 
 type Resolver struct {
-	userORM *orm.UserORM
-	taskOrm *orm.TaskORM
+	userORM  *orm.UserORM
+	taskOrm  *orm.TaskORM
+	eventOrm *orm.EventOrm
 }

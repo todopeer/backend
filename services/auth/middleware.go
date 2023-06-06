@@ -32,8 +32,6 @@ func AuthMiddleware(userORM *orm.UserORM) func(http.Handler) http.Handler {
 				return
 			}
 
-			log.Println("token string: ", tokenStr)
-
 			// If there is an error, the token must have been expired or malformed
 
 			var user *orm.User

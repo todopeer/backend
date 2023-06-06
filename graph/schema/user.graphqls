@@ -19,3 +19,8 @@ extend type Mutation {
 	login(input: LoginInput!): AuthPayload!
 	logout: Boolean! @auth
 }
+
+type AuthPayload {
+	user: User!
+	token: String!
+}

@@ -36,6 +36,7 @@ func main() {
 	r := resolver.NewResolver(
 		resolver.ResolverOptionWithUserOrm(userOrm),
 		resolver.ResolverOptionWithTaskOrm(orm.NewTaskORM(db)),
+		resolver.ResolverOptionWithEventOrm(orm.NewEventOrm(db)),
 	)
 	c := graph.Config{Resolvers: r}
 	c.Directives.Auth = auth.AuthDirective

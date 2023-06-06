@@ -1,12 +1,21 @@
+scalar Time
+
+enum TaskStatus {
+  NOT_STARTED
+  DOING
+  DONE
+}
+
 type Task {
 	id: ID!
 	name: String!
 	description: String
-	status: Int!
-	timeCreated: Date!
-	timeUpdated: Date!
-	timeCompleted: Date
-	dueDate: Date
+	status: TaskStatus!
+	timeCreated: Time!
+	timeUpdated: Time!
+	timeCompleted: Time
+	dueDate: Time
+	events: [Event!]
 }
 
 type Event {
@@ -14,27 +23,35 @@ type Event {
 	task: Task!
 	timing: [String!]!
 	fullPomo: Boolean!
-	timeCreated: Date!
-	timeUpdated: Date!
+	timeCreated: Time!
+	timeUpdated: Time!
 }
 
-input TaskInput {
+input TaskCreateInput {
 	name: String!
 	description: String
-	dueDate: Date
+	dueDate: Time
 }
 
 input TaskUpdateInput {
 	taskId: ID!
-	taskFields: TaskInput!
+
+	name: String
+	description: String
+	dueDate: Time
+	status: TaskStatus
 }
 
 extend type Mutation {
-	taskCreate(input: TaskInput!): Task! @auth
+	taskCreate(input: TaskCreateInput!): Task! @auth
 	taskUpdate(input: TaskUpdateInput!): Task! @auth
 }
 
+input QueryTaskInput {
+	status: TaskStatus
+}
+
 extend type Query {
-	events(date: Date!): [Event!] @auth
-	tasks(date: Date!): [Task!] @auth
+	events(date: Time!): [Event!] @auth
+	tasks(input: QueryTaskInput!): [Task!] @auth
 }

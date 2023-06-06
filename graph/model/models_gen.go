@@ -2,18 +2,25 @@
 
 package model
 
+import (
+	"fmt"
+	"io"
+	"strconv"
+	"time"
+)
+
 type AuthPayload struct {
 	User  *User  `json:"user"`
 	Token string `json:"token"`
 }
 
 type Event struct {
-	ID          int64    `json:"id"`
-	Task        *Task    `json:"task"`
-	Timing      []string `json:"timing"`
-	FullPomo    bool     `json:"fullPomo"`
-	TimeCreated string   `json:"timeCreated"`
-	TimeUpdated string   `json:"timeUpdated"`
+	ID          int64     `json:"id"`
+	Task        *Task     `json:"task"`
+	Timing      []string  `json:"timing"`
+	FullPomo    bool      `json:"fullPomo"`
+	TimeCreated time.Time `json:"timeCreated"`
+	TimeUpdated time.Time `json:"timeUpdated"`
 }
 
 type LoginInput struct {
@@ -25,24 +32,75 @@ type PomoInput struct {
 	TaskID int64 `json:"taskId"`
 }
 
-type Task struct {
-	ID            int64   `json:"id"`
-	Name          string  `json:"name"`
-	Description   *string `json:"description,omitempty"`
-	Status        int32   `json:"status"`
-	TimeCreated   string  `json:"timeCreated"`
-	TimeUpdated   string  `json:"timeUpdated"`
-	TimeCompleted *string `json:"timeCompleted,omitempty"`
-	DueDate       *string `json:"dueDate,omitempty"`
+type QueryTaskInput struct {
+	Status *TaskStatus `json:"status,omitempty"`
 }
 
-type TaskInput struct {
-	Name        string  `json:"name"`
-	Description *string `json:"description,omitempty"`
-	DueDate     *string `json:"dueDate,omitempty"`
+type Task struct {
+	ID            int64      `json:"id"`
+	Name          string     `json:"name"`
+	Description   *string    `json:"description,omitempty"`
+	Status        TaskStatus `json:"status"`
+	TimeCreated   time.Time  `json:"timeCreated"`
+	TimeUpdated   time.Time  `json:"timeUpdated"`
+	TimeCompleted *time.Time `json:"timeCompleted,omitempty"`
+	DueDate       *time.Time `json:"dueDate,omitempty"`
+	Events        []*Event   `json:"events,omitempty"`
+}
+
+type TaskCreateInput struct {
+	Name        string     `json:"name"`
+	Description *string    `json:"description,omitempty"`
+	DueDate     *time.Time `json:"dueDate,omitempty"`
 }
 
 type TaskUpdateInput struct {
-	TaskID     int64      `json:"taskId"`
-	TaskFields *TaskInput `json:"taskFields"`
+	TaskID      int64       `json:"taskId"`
+	Name        *string     `json:"name,omitempty"`
+	Description *string     `json:"description,omitempty"`
+	DueDate     *time.Time  `json:"dueDate,omitempty"`
+	Status      *TaskStatus `json:"status,omitempty"`
+}
+
+type TaskStatus string
+
+const (
+	TaskStatusNotStarted TaskStatus = "NOT_STARTED"
+	TaskStatusDoing      TaskStatus = "DOING"
+	TaskStatusDone       TaskStatus = "DONE"
+)
+
+var AllTaskStatus = []TaskStatus{
+	TaskStatusNotStarted,
+	TaskStatusDoing,
+	TaskStatusDone,
+}
+
+func (e TaskStatus) IsValid() bool {
+	switch e {
+	case TaskStatusNotStarted, TaskStatusDoing, TaskStatusDone:
+		return true
+	}
+	return false
+}
+
+func (e TaskStatus) String() string {
+	return string(e)
+}
+
+func (e *TaskStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TaskStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TaskStatus", str)
+	}
+	return nil
+}
+
+func (e TaskStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

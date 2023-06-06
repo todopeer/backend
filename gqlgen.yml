@@ -33,7 +33,7 @@ resolver:
 # omit_slice_element_pointers: false
 
 # Optional: turn on to skip generation of ComplexityRoot struct content and Complexity function
-# omit_complexity: false
+omit_complexity: true
 
 # Optional: turn on to not generate any file notice comments in generated files
 # omit_gqlgen_file_notice: false
@@ -82,3 +82,4 @@ models:
       - github.com/99designs/gqlgen/graphql.Int64
   User:
     model: github.com/flyfy1/diarier/graph/model.User
+

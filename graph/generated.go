@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -46,67 +47,20 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	AuthPayload struct {
-		Token func(childComplexity int) int
-		User  func(childComplexity int) int
-	}
-
-	Event struct {
-		FullPomo    func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Task        func(childComplexity int) int
-		TimeCreated func(childComplexity int) int
-		TimeUpdated func(childComplexity int) int
-		Timing      func(childComplexity int) int
-	}
-
-	Mutation struct {
-		Login      func(childComplexity int, input model.LoginInput) int
-		Logout     func(childComplexity int) int
-		PomoPause  func(childComplexity int, input model.PomoInput) int
-		PomoStart  func(childComplexity int, input model.PomoInput) int
-		TaskCreate func(childComplexity int, input model.TaskInput) int
-		TaskUpdate func(childComplexity int, input model.TaskUpdateInput) int
-	}
-
-	Query struct {
-		Events func(childComplexity int, date string) int
-		Me     func(childComplexity int) int
-		Ping   func(childComplexity int) int
-		Tasks  func(childComplexity int, date string) int
-	}
-
-	Task struct {
-		Description   func(childComplexity int) int
-		DueDate       func(childComplexity int) int
-		ID            func(childComplexity int) int
-		Name          func(childComplexity int) int
-		Status        func(childComplexity int) int
-		TimeCompleted func(childComplexity int) int
-		TimeCreated   func(childComplexity int) int
-		TimeUpdated   func(childComplexity int) int
-	}
-
-	User struct {
-		Email       func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Name        func(childComplexity int) int
-		RunningTask func(childComplexity int) int
-	}
 }
 
 type MutationResolver interface {
 	PomoStart(ctx context.Context, input model.PomoInput) (*model.Event, error)
 	PomoPause(ctx context.Context, input model.PomoInput) (*model.Event, error)
-	TaskCreate(ctx context.Context, input model.TaskInput) (*model.Task, error)
+	TaskCreate(ctx context.Context, input model.TaskCreateInput) (*model.Task, error)
 	TaskUpdate(ctx context.Context, input model.TaskUpdateInput) (*model.Task, error)
 	Login(ctx context.Context, input model.LoginInput) (*model.AuthPayload, error)
 	Logout(ctx context.Context) (bool, error)
 }
 type QueryResolver interface {
 	Ping(ctx context.Context) (bool, error)
-	Events(ctx context.Context, date string) ([]*model.Event, error)
-	Tasks(ctx context.Context, date string) ([]*model.Task, error)
+	Events(ctx context.Context, date time.Time) ([]*model.Event, error)
+	Tasks(ctx context.Context, input model.QueryTaskInput) ([]*model.Task, error)
 	Me(ctx context.Context) (*model.User, error)
 }
 
@@ -123,254 +77,7 @@ func (e *executableSchema) Schema() *ast.Schema {
 func (e *executableSchema) Complexity(typeName, field string, childComplexity int, rawArgs map[string]interface{}) (int, bool) {
 	ec := executionContext{nil, e}
 	_ = ec
-	switch typeName + "." + field {
 
-	case "AuthPayload.token":
-		if e.complexity.AuthPayload.Token == nil {
-			break
-		}
-
-		return e.complexity.AuthPayload.Token(childComplexity), true
-
-	case "AuthPayload.user":
-		if e.complexity.AuthPayload.User == nil {
-			break
-		}
-
-		return e.complexity.AuthPayload.User(childComplexity), true
-
-	case "Event.fullPomo":
-		if e.complexity.Event.FullPomo == nil {
-			break
-		}
-
-		return e.complexity.Event.FullPomo(childComplexity), true
-
-	case "Event.id":
-		if e.complexity.Event.ID == nil {
-			break
-		}
-
-		return e.complexity.Event.ID(childComplexity), true
-
-	case "Event.task":
-		if e.complexity.Event.Task == nil {
-			break
-		}
-
-		return e.complexity.Event.Task(childComplexity), true
-
-	case "Event.timeCreated":
-		if e.complexity.Event.TimeCreated == nil {
-			break
-		}
-
-		return e.complexity.Event.TimeCreated(childComplexity), true
-
-	case "Event.timeUpdated":
-		if e.complexity.Event.TimeUpdated == nil {
-			break
-		}
-
-		return e.complexity.Event.TimeUpdated(childComplexity), true
-
-	case "Event.timing":
-		if e.complexity.Event.Timing == nil {
-			break
-		}
-
-		return e.complexity.Event.Timing(childComplexity), true
-
-	case "Mutation.login":
-		if e.complexity.Mutation.Login == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_login_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.Login(childComplexity, args["input"].(model.LoginInput)), true
-
-	case "Mutation.logout":
-		if e.complexity.Mutation.Logout == nil {
-			break
-		}
-
-		return e.complexity.Mutation.Logout(childComplexity), true
-
-	case "Mutation.pomoPause":
-		if e.complexity.Mutation.PomoPause == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_pomoPause_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.PomoPause(childComplexity, args["input"].(model.PomoInput)), true
-
-	case "Mutation.pomoStart":
-		if e.complexity.Mutation.PomoStart == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_pomoStart_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.PomoStart(childComplexity, args["input"].(model.PomoInput)), true
-
-	case "Mutation.taskCreate":
-		if e.complexity.Mutation.TaskCreate == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_taskCreate_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.TaskCreate(childComplexity, args["input"].(model.TaskInput)), true
-
-	case "Mutation.taskUpdate":
-		if e.complexity.Mutation.TaskUpdate == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_taskUpdate_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.TaskUpdate(childComplexity, args["input"].(model.TaskUpdateInput)), true
-
-	case "Query.events":
-		if e.complexity.Query.Events == nil {
-			break
-		}
-
-		args, err := ec.field_Query_events_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Events(childComplexity, args["date"].(string)), true
-
-	case "Query.me":
-		if e.complexity.Query.Me == nil {
-			break
-		}
-
-		return e.complexity.Query.Me(childComplexity), true
-
-	case "Query.ping":
-		if e.complexity.Query.Ping == nil {
-			break
-		}
-
-		return e.complexity.Query.Ping(childComplexity), true
-
-	case "Query.tasks":
-		if e.complexity.Query.Tasks == nil {
-			break
-		}
-
-		args, err := ec.field_Query_tasks_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Tasks(childComplexity, args["date"].(string)), true
-
-	case "Task.description":
-		if e.complexity.Task.Description == nil {
-			break
-		}
-
-		return e.complexity.Task.Description(childComplexity), true
-
-	case "Task.dueDate":
-		if e.complexity.Task.DueDate == nil {
-			break
-		}
-
-		return e.complexity.Task.DueDate(childComplexity), true
-
-	case "Task.id":
-		if e.complexity.Task.ID == nil {
-			break
-		}
-
-		return e.complexity.Task.ID(childComplexity), true
-
-	case "Task.name":
-		if e.complexity.Task.Name == nil {
-			break
-		}
-
-		return e.complexity.Task.Name(childComplexity), true
-
-	case "Task.status":
-		if e.complexity.Task.Status == nil {
-			break
-		}
-
-		return e.complexity.Task.Status(childComplexity), true
-
-	case "Task.timeCompleted":
-		if e.complexity.Task.TimeCompleted == nil {
-			break
-		}
-
-		return e.complexity.Task.TimeCompleted(childComplexity), true
-
-	case "Task.timeCreated":
-		if e.complexity.Task.TimeCreated == nil {
-			break
-		}
-
-		return e.complexity.Task.TimeCreated(childComplexity), true
-
-	case "Task.timeUpdated":
-		if e.complexity.Task.TimeUpdated == nil {
-			break
-		}
-
-		return e.complexity.Task.TimeUpdated(childComplexity), true
-
-	case "User.email":
-		if e.complexity.User.Email == nil {
-			break
-		}
-
-		return e.complexity.User.Email(childComplexity), true
-
-	case "User.id":
-		if e.complexity.User.ID == nil {
-			break
-		}
-
-		return e.complexity.User.ID(childComplexity), true
-
-	case "User.name":
-		if e.complexity.User.Name == nil {
-			break
-		}
-
-		return e.complexity.User.Name(childComplexity), true
-
-	case "User.runningTask":
-		if e.complexity.User.RunningTask == nil {
-			break
-		}
-
-		return e.complexity.User.RunningTask(childComplexity), true
-
-	}
 	return 0, false
 }
 
@@ -380,7 +87,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputLoginInput,
 		ec.unmarshalInputPomoInput,
-		ec.unmarshalInputTaskInput,
+		ec.unmarshalInputQueryTaskInput,
+		ec.unmarshalInputTaskCreateInput,
 		ec.unmarshalInputTaskUpdateInput,
 	)
 	first := true
@@ -511,10 +219,10 @@ func (ec *executionContext) field_Mutation_pomoStart_args(ctx context.Context, r
 func (ec *executionContext) field_Mutation_taskCreate_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.TaskInput
+	var arg0 model.TaskCreateInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNTaskInput2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskInput(ctx, tmp)
+		arg0, err = ec.unmarshalNTaskCreateInput2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskCreateInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -556,10 +264,10 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_events_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 time.Time
 	if tmp, ok := rawArgs["date"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
-		arg0, err = ec.unmarshalNDate2string(ctx, tmp)
+		arg0, err = ec.unmarshalNTime2timeᚐTime(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -571,15 +279,15 @@ func (ec *executionContext) field_Query_events_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_tasks_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["date"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
-		arg0, err = ec.unmarshalNDate2string(ctx, tmp)
+	var arg0 model.QueryTaskInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNQueryTaskInput2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐQueryTaskInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["date"] = arg0
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -818,6 +526,8 @@ func (ec *executionContext) fieldContext_Event_task(ctx context.Context, field g
 				return ec.fieldContext_Task_timeCompleted(ctx, field)
 			case "dueDate":
 				return ec.fieldContext_Task_dueDate(ctx, field)
+			case "events":
+				return ec.fieldContext_Task_events(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Task", field.Name)
 		},
@@ -939,9 +649,9 @@ func (ec *executionContext) _Event_timeCreated(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNDate2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Event_timeCreated(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -951,7 +661,7 @@ func (ec *executionContext) fieldContext_Event_timeCreated(ctx context.Context, 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Date does not have child fields")
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -983,9 +693,9 @@ func (ec *executionContext) _Event_timeUpdated(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNDate2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Event_timeUpdated(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -995,7 +705,7 @@ func (ec *executionContext) fieldContext_Event_timeUpdated(ctx context.Context, 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Date does not have child fields")
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1194,7 +904,7 @@ func (ec *executionContext) _Mutation_taskCreate(ctx context.Context, field grap
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().TaskCreate(rctx, fc.Args["input"].(model.TaskInput))
+			return ec.resolvers.Mutation().TaskCreate(rctx, fc.Args["input"].(model.TaskCreateInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.Auth == nil {
@@ -1254,6 +964,8 @@ func (ec *executionContext) fieldContext_Mutation_taskCreate(ctx context.Context
 				return ec.fieldContext_Task_timeCompleted(ctx, field)
 			case "dueDate":
 				return ec.fieldContext_Task_dueDate(ctx, field)
+			case "events":
+				return ec.fieldContext_Task_events(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Task", field.Name)
 		},
@@ -1347,6 +1059,8 @@ func (ec *executionContext) fieldContext_Mutation_taskUpdate(ctx context.Context
 				return ec.fieldContext_Task_timeCompleted(ctx, field)
 			case "dueDate":
 				return ec.fieldContext_Task_dueDate(ctx, field)
+			case "events":
+				return ec.fieldContext_Task_events(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Task", field.Name)
 		},
@@ -1549,7 +1263,7 @@ func (ec *executionContext) _Query_events(ctx context.Context, field graphql.Col
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().Events(rctx, fc.Args["date"].(string))
+			return ec.resolvers.Query().Events(rctx, fc.Args["date"].(time.Time))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.Auth == nil {
@@ -1635,7 +1349,7 @@ func (ec *executionContext) _Query_tasks(ctx context.Context, field graphql.Coll
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().Tasks(rctx, fc.Args["date"].(string))
+			return ec.resolvers.Query().Tasks(rctx, fc.Args["input"].(model.QueryTaskInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.Auth == nil {
@@ -1692,6 +1406,8 @@ func (ec *executionContext) fieldContext_Query_tasks(ctx context.Context, field 
 				return ec.fieldContext_Task_timeCompleted(ctx, field)
 			case "dueDate":
 				return ec.fieldContext_Task_dueDate(ctx, field)
+			case "events":
+				return ec.fieldContext_Task_events(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Task", field.Name)
 		},
@@ -2065,9 +1781,9 @@ func (ec *executionContext) _Task_status(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int32)
+	res := resTmp.(model.TaskStatus)
 	fc.Result = res
-	return ec.marshalNInt2int32(ctx, field.Selections, res)
+	return ec.marshalNTaskStatus2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Task_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2077,7 +1793,7 @@ func (ec *executionContext) fieldContext_Task_status(ctx context.Context, field 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type TaskStatus does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2109,9 +1825,9 @@ func (ec *executionContext) _Task_timeCreated(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNDate2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Task_timeCreated(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2121,7 +1837,7 @@ func (ec *executionContext) fieldContext_Task_timeCreated(ctx context.Context, f
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Date does not have child fields")
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2153,9 +1869,9 @@ func (ec *executionContext) _Task_timeUpdated(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNDate2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Task_timeUpdated(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2165,7 +1881,7 @@ func (ec *executionContext) fieldContext_Task_timeUpdated(ctx context.Context, f
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Date does not have child fields")
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2194,9 +1910,9 @@ func (ec *executionContext) _Task_timeCompleted(ctx context.Context, field graph
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(*time.Time)
 	fc.Result = res
-	return ec.marshalODate2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Task_timeCompleted(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2206,7 +1922,7 @@ func (ec *executionContext) fieldContext_Task_timeCompleted(ctx context.Context,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Date does not have child fields")
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2235,9 +1951,9 @@ func (ec *executionContext) _Task_dueDate(ctx context.Context, field graphql.Col
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(*time.Time)
 	fc.Result = res
-	return ec.marshalODate2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Task_dueDate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2247,7 +1963,62 @@ func (ec *executionContext) fieldContext_Task_dueDate(ctx context.Context, field
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Date does not have child fields")
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Task_events(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Task_events(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Events, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Event)
+	fc.Result = res
+	return ec.marshalOEvent2ᚕᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐEventᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Task_events(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Task",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Event_id(ctx, field)
+			case "task":
+				return ec.fieldContext_Event_task(ctx, field)
+			case "timing":
+				return ec.fieldContext_Event_timing(ctx, field)
+			case "fullPomo":
+				return ec.fieldContext_Event_fullPomo(ctx, field)
+			case "timeCreated":
+				return ec.fieldContext_Event_timeCreated(ctx, field)
+			case "timeUpdated":
+				return ec.fieldContext_Event_timeUpdated(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Event", field.Name)
 		},
 	}
 	return fc, nil
@@ -2434,6 +2205,8 @@ func (ec *executionContext) fieldContext_User_runningTask(ctx context.Context, f
 				return ec.fieldContext_Task_timeCompleted(ctx, field)
 			case "dueDate":
 				return ec.fieldContext_Task_dueDate(ctx, field)
+			case "events":
+				return ec.fieldContext_Task_events(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Task", field.Name)
 		},
@@ -4281,8 +4054,37 @@ func (ec *executionContext) unmarshalInputPomoInput(ctx context.Context, obj int
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputTaskInput(ctx context.Context, obj interface{}) (model.TaskInput, error) {
-	var it model.TaskInput
+func (ec *executionContext) unmarshalInputQueryTaskInput(ctx context.Context, obj interface{}) (model.QueryTaskInput, error) {
+	var it model.QueryTaskInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"status"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "status":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+			data, err := ec.unmarshalOTaskStatus2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskStatus(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Status = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTaskCreateInput(ctx context.Context, obj interface{}) (model.TaskCreateInput, error) {
+	var it model.TaskCreateInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -4317,7 +4119,7 @@ func (ec *executionContext) unmarshalInputTaskInput(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dueDate"))
-			data, err := ec.unmarshalODate2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4335,7 +4137,7 @@ func (ec *executionContext) unmarshalInputTaskUpdateInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"taskId", "taskFields"}
+	fieldsInOrder := [...]string{"taskId", "name", "description", "dueDate", "status"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4351,15 +4153,42 @@ func (ec *executionContext) unmarshalInputTaskUpdateInput(ctx context.Context, o
 				return it, err
 			}
 			it.TaskID = data
-		case "taskFields":
+		case "name":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("taskFields"))
-			data, err := ec.unmarshalNTaskInput2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskInput(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.TaskFields = data
+			it.Name = data
+		case "description":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Description = data
+		case "dueDate":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dueDate"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DueDate = data
+		case "status":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+			data, err := ec.unmarshalOTaskStatus2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskStatus(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Status = data
 		}
 	}
 
@@ -4737,6 +4566,10 @@ func (ec *executionContext) _Task(ctx context.Context, sel ast.SelectionSet, obj
 		case "dueDate":
 
 			out.Values[i] = ec._Task_dueDate(ctx, field, obj)
+
+		case "events":
+
+			out.Values[i] = ec._Task_events(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -5139,21 +4972,6 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalNDate2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalString(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNDate2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalString(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
 func (ec *executionContext) marshalNEvent2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐEvent(ctx context.Context, sel ast.SelectionSet, v model.Event) graphql.Marshaler {
 	return ec._Event(ctx, sel, &v)
 }
@@ -5183,21 +5001,6 @@ func (ec *executionContext) marshalNID2int64(ctx context.Context, sel ast.Select
 	return res
 }
 
-func (ec *executionContext) unmarshalNInt2int32(ctx context.Context, v interface{}) (int32, error) {
-	res, err := graphql.UnmarshalInt32(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNInt2int32(ctx context.Context, sel ast.SelectionSet, v int32) graphql.Marshaler {
-	res := graphql.MarshalInt32(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
 func (ec *executionContext) unmarshalNLoginInput2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐLoginInput(ctx context.Context, v interface{}) (model.LoginInput, error) {
 	res, err := ec.unmarshalInputLoginInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5205,6 +5008,11 @@ func (ec *executionContext) unmarshalNLoginInput2githubᚗcomᚋflyfy1ᚋdiarier
 
 func (ec *executionContext) unmarshalNPomoInput2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐPomoInput(ctx context.Context, v interface{}) (model.PomoInput, error) {
 	res, err := ec.unmarshalInputPomoInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNQueryTaskInput2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐQueryTaskInput(ctx context.Context, v interface{}) (model.QueryTaskInput, error) {
+	res, err := ec.unmarshalInputQueryTaskInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -5269,19 +5077,39 @@ func (ec *executionContext) marshalNTask2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgr
 	return ec._Task(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNTaskInput2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskInput(ctx context.Context, v interface{}) (model.TaskInput, error) {
-	res, err := ec.unmarshalInputTaskInput(ctx, v)
+func (ec *executionContext) unmarshalNTaskCreateInput2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskCreateInput(ctx context.Context, v interface{}) (model.TaskCreateInput, error) {
+	res, err := ec.unmarshalInputTaskCreateInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNTaskInput2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskInput(ctx context.Context, v interface{}) (*model.TaskInput, error) {
-	res, err := ec.unmarshalInputTaskInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
+func (ec *executionContext) unmarshalNTaskStatus2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, v interface{}) (model.TaskStatus, error) {
+	var res model.TaskStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTaskStatus2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, sel ast.SelectionSet, v model.TaskStatus) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNTaskUpdateInput2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskUpdateInput(ctx context.Context, v interface{}) (model.TaskUpdateInput, error) {
 	res, err := ec.unmarshalInputTaskUpdateInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
+	res, err := graphql.UnmarshalTime(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	res := graphql.MarshalTime(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
@@ -5573,22 +5401,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) unmarshalODate2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalString(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalODate2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalString(*v)
-	return res
-}
-
 func (ec *executionContext) marshalOEvent2ᚕᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐEventᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Event) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -5704,6 +5516,38 @@ func (ec *executionContext) marshalOTask2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgr
 		return graphql.Null
 	}
 	return ec._Task(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOTaskStatus2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, v interface{}) (*model.TaskStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.TaskStatus)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTaskStatus2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, sel ast.SelectionSet, v *model.TaskStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalTime(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalTime(*v)
+	return res
 }
 
 func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {

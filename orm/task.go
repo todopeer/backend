@@ -6,15 +6,21 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+const (
+	TaskStatusNotStarted = 0
+	TaskStatusDoing      = 1
+	TaskStatusDone       = 2
+)
+
 type Task struct {
 	ID          int64 `gorm:"primary_key"`
-	UserID      int64
-	Name        string
+	UserID      *int64
+	Name        *string
 	Description *string
-	Status      int
+	Status      *int
 
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	CreatedAt   *time.Time
+	UpdatedAt   *time.Time
 	CompletedAt *time.Time
 
 	DueDate *time.Time
@@ -36,7 +42,7 @@ func (t *TaskORM) CreateTask(task *Task) error {
 
 // UpdateTask updates an existing task
 func (t *TaskORM) UpdateTask(task *Task) error {
-	return t.db.Save(task).Error
+	return t.db.Update(task).Error
 }
 
 // DeleteTask deletes a task
@@ -56,10 +62,24 @@ func (t *TaskORM) GetTaskByID(id int64) (*Task, error) {
 	return task, nil
 }
 
+type QueryTaskOptionFunc func(db *gorm.DB) *gorm.DB
+
+func GetTasksWithStatus(status int) QueryTaskOptionFunc {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("status = ?", status)
+	}
+}
+
 // GetTasksByUserID retrieves tasks for a specific user
-func (t *TaskORM) GetTasksByUserID(userID int64) ([]*Task, error) {
+func (t *TaskORM) GetTasksByUserID(userID int64, options ...QueryTaskOptionFunc) ([]*Task, error) {
 	var tasks []*Task
-	if err := t.db.Where("user_id = ?", userID).Find(&tasks).Error; err != nil {
+
+	query := t.db.Where("user_id = ?", userID).Order("updated_at DESC")
+	for _, option := range options {
+		query = option(query)
+	}
+
+	if err := query.Find(&tasks).Error; err != nil {
 		return nil, err
 	}
 	return tasks, nil
