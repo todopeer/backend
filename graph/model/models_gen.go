@@ -37,15 +37,15 @@ type QueryTaskInput struct {
 }
 
 type Task struct {
-	ID            int64      `json:"id"`
-	Name          string     `json:"name"`
-	Description   *string    `json:"description,omitempty"`
-	Status        TaskStatus `json:"status"`
-	TimeCreated   time.Time  `json:"timeCreated"`
-	TimeUpdated   time.Time  `json:"timeUpdated"`
-	TimeCompleted *time.Time `json:"timeCompleted,omitempty"`
-	DueDate       *time.Time `json:"dueDate,omitempty"`
-	Events        []*Event   `json:"events,omitempty"`
+	ID          int64      `json:"id"`
+	Name        string     `json:"name"`
+	Description *string    `json:"description,omitempty"`
+	Status      TaskStatus `json:"status"`
+	CreatedAt   time.Time  `json:"createdAt"`
+	UpdatedAt   time.Time  `json:"updatedAt"`
+	CompletedAt *time.Time `json:"completedAt,omitempty"`
+	DueDate     *time.Time `json:"dueDate,omitempty"`
+	Events      []*Event   `json:"events,omitempty"`
 }
 
 type TaskCreateInput struct {

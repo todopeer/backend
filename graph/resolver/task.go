@@ -20,14 +20,17 @@ func convertToGraphTaskModel(task *orm.Task) (*model.Task, error) {
 	// 	events = append(events, event)
 	// }
 
-	status := model.AllTaskStatus[task.Status]
+	status := model.AllTaskStatus[*task.Status]
 
 	return &model.Task{
 		ID:          task.ID,
-		Name:        task.Name,
+		Name:        *task.Name,
 		Description: task.Description,
 		Status:      status,
 		DueDate:     task.DueDate,
 		Events:      events,
+		CreatedAt:   *task.CreatedAt,
+		UpdatedAt:   *task.UpdatedAt,
+		CompletedAt: task.CompletedAt,
 	}, nil
 }

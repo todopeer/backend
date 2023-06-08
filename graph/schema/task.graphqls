@@ -11,9 +11,9 @@ type Task {
 	name: String!
 	description: String
 	status: TaskStatus!
-	timeCreated: Time!
-	timeUpdated: Time!
-	timeCompleted: Time
+	createdAt: Time!
+	updatedAt: Time!
+	completedAt: Time
 	dueDate: Time
 	events: [Event!]
 }
@@ -45,6 +45,7 @@ input TaskUpdateInput {
 extend type Mutation {
 	taskCreate(input: TaskCreateInput!): Task! @auth
 	taskUpdate(input: TaskUpdateInput!): Task! @auth
+	taskRemove(id: ID!): Task! @auth
 }
 
 input QueryTaskInput {

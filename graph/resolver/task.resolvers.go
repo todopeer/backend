@@ -13,6 +13,7 @@ import (
 	"github.com/flyfy1/diarier/graph/model"
 	"github.com/flyfy1/diarier/orm"
 	"github.com/flyfy1/diarier/services/auth"
+	"github.com/jinzhu/gorm"
 )
 
 // TaskCreate is the resolver for the taskCreate field.
@@ -56,6 +57,29 @@ func (r *mutationResolver) TaskUpdate(ctx context.Context, input model.TaskUpdat
 	// TODO: consider clear completed_at, if undone a task
 
 	if err := r.taskOrm.UpdateTask(changes); err != nil {
+		return nil, err
+	}
+
+	return convertToGraphTaskModel(task)
+}
+
+// TaskRemove is the resolver for the taskRemove field.
+func (r *mutationResolver) TaskRemove(ctx context.Context, id int64) (*model.Task, error) {
+	user := auth.UserFromContext(ctx)
+	task, err := r.taskOrm.GetTaskByID(id)
+	if err != nil {
+		return nil, err
+	}
+	if task == nil {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	if *task.UserID != user.ID {
+		return nil, errors.New("not authorized to update this task")
+	}
+
+	err = r.taskOrm.DeleteTask(task)
+	if err != nil {
 		return nil, err
 	}
 

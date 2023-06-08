@@ -54,6 +54,7 @@ type MutationResolver interface {
 	PomoPause(ctx context.Context, input model.PomoInput) (*model.Event, error)
 	TaskCreate(ctx context.Context, input model.TaskCreateInput) (*model.Task, error)
 	TaskUpdate(ctx context.Context, input model.TaskUpdateInput) (*model.Task, error)
+	TaskRemove(ctx context.Context, id int64) (*model.Task, error)
 	Login(ctx context.Context, input model.LoginInput) (*model.AuthPayload, error)
 	Logout(ctx context.Context) (bool, error)
 }
@@ -228,6 +229,21 @@ func (ec *executionContext) field_Mutation_taskCreate_args(ctx context.Context, 
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_taskRemove_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -518,12 +534,12 @@ func (ec *executionContext) fieldContext_Event_task(ctx context.Context, field g
 				return ec.fieldContext_Task_description(ctx, field)
 			case "status":
 				return ec.fieldContext_Task_status(ctx, field)
-			case "timeCreated":
-				return ec.fieldContext_Task_timeCreated(ctx, field)
-			case "timeUpdated":
-				return ec.fieldContext_Task_timeUpdated(ctx, field)
-			case "timeCompleted":
-				return ec.fieldContext_Task_timeCompleted(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Task_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Task_updatedAt(ctx, field)
+			case "completedAt":
+				return ec.fieldContext_Task_completedAt(ctx, field)
 			case "dueDate":
 				return ec.fieldContext_Task_dueDate(ctx, field)
 			case "events":
@@ -956,12 +972,12 @@ func (ec *executionContext) fieldContext_Mutation_taskCreate(ctx context.Context
 				return ec.fieldContext_Task_description(ctx, field)
 			case "status":
 				return ec.fieldContext_Task_status(ctx, field)
-			case "timeCreated":
-				return ec.fieldContext_Task_timeCreated(ctx, field)
-			case "timeUpdated":
-				return ec.fieldContext_Task_timeUpdated(ctx, field)
-			case "timeCompleted":
-				return ec.fieldContext_Task_timeCompleted(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Task_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Task_updatedAt(ctx, field)
+			case "completedAt":
+				return ec.fieldContext_Task_completedAt(ctx, field)
 			case "dueDate":
 				return ec.fieldContext_Task_dueDate(ctx, field)
 			case "events":
@@ -1051,12 +1067,12 @@ func (ec *executionContext) fieldContext_Mutation_taskUpdate(ctx context.Context
 				return ec.fieldContext_Task_description(ctx, field)
 			case "status":
 				return ec.fieldContext_Task_status(ctx, field)
-			case "timeCreated":
-				return ec.fieldContext_Task_timeCreated(ctx, field)
-			case "timeUpdated":
-				return ec.fieldContext_Task_timeUpdated(ctx, field)
-			case "timeCompleted":
-				return ec.fieldContext_Task_timeCompleted(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Task_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Task_updatedAt(ctx, field)
+			case "completedAt":
+				return ec.fieldContext_Task_completedAt(ctx, field)
 			case "dueDate":
 				return ec.fieldContext_Task_dueDate(ctx, field)
 			case "events":
@@ -1073,6 +1089,101 @@ func (ec *executionContext) fieldContext_Mutation_taskUpdate(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_taskUpdate_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_taskRemove(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_taskRemove(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().TaskRemove(rctx, fc.Args["id"].(int64))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Task); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/flyfy1/diarier/graph/model.Task`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Task)
+	fc.Result = res
+	return ec.marshalNTask2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTask(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_taskRemove(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Task_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Task_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Task_description(ctx, field)
+			case "status":
+				return ec.fieldContext_Task_status(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Task_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Task_updatedAt(ctx, field)
+			case "completedAt":
+				return ec.fieldContext_Task_completedAt(ctx, field)
+			case "dueDate":
+				return ec.fieldContext_Task_dueDate(ctx, field)
+			case "events":
+				return ec.fieldContext_Task_events(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Task", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_taskRemove_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -1398,12 +1509,12 @@ func (ec *executionContext) fieldContext_Query_tasks(ctx context.Context, field 
 				return ec.fieldContext_Task_description(ctx, field)
 			case "status":
 				return ec.fieldContext_Task_status(ctx, field)
-			case "timeCreated":
-				return ec.fieldContext_Task_timeCreated(ctx, field)
-			case "timeUpdated":
-				return ec.fieldContext_Task_timeUpdated(ctx, field)
-			case "timeCompleted":
-				return ec.fieldContext_Task_timeCompleted(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Task_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Task_updatedAt(ctx, field)
+			case "completedAt":
+				return ec.fieldContext_Task_completedAt(ctx, field)
 			case "dueDate":
 				return ec.fieldContext_Task_dueDate(ctx, field)
 			case "events":
@@ -1799,8 +1910,8 @@ func (ec *executionContext) fieldContext_Task_status(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Task_timeCreated(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Task_timeCreated(ctx, field)
+func (ec *executionContext) _Task_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Task_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1813,7 +1924,7 @@ func (ec *executionContext) _Task_timeCreated(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.TimeCreated, nil
+		return obj.CreatedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1830,7 +1941,7 @@ func (ec *executionContext) _Task_timeCreated(ctx context.Context, field graphql
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Task_timeCreated(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Task_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Task",
 		Field:      field,
@@ -1843,8 +1954,8 @@ func (ec *executionContext) fieldContext_Task_timeCreated(ctx context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Task_timeUpdated(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Task_timeUpdated(ctx, field)
+func (ec *executionContext) _Task_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Task_updatedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1857,7 +1968,7 @@ func (ec *executionContext) _Task_timeUpdated(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.TimeUpdated, nil
+		return obj.UpdatedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1874,7 +1985,7 @@ func (ec *executionContext) _Task_timeUpdated(ctx context.Context, field graphql
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Task_timeUpdated(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Task_updatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Task",
 		Field:      field,
@@ -1887,8 +1998,8 @@ func (ec *executionContext) fieldContext_Task_timeUpdated(ctx context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Task_timeCompleted(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Task_timeCompleted(ctx, field)
+func (ec *executionContext) _Task_completedAt(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Task_completedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1901,7 +2012,7 @@ func (ec *executionContext) _Task_timeCompleted(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.TimeCompleted, nil
+		return obj.CompletedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1915,7 +2026,7 @@ func (ec *executionContext) _Task_timeCompleted(ctx context.Context, field graph
 	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Task_timeCompleted(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Task_completedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Task",
 		Field:      field,
@@ -2197,12 +2308,12 @@ func (ec *executionContext) fieldContext_User_runningTask(ctx context.Context, f
 				return ec.fieldContext_Task_description(ctx, field)
 			case "status":
 				return ec.fieldContext_Task_status(ctx, field)
-			case "timeCreated":
-				return ec.fieldContext_Task_timeCreated(ctx, field)
-			case "timeUpdated":
-				return ec.fieldContext_Task_timeUpdated(ctx, field)
-			case "timeCompleted":
-				return ec.fieldContext_Task_timeCompleted(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Task_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Task_updatedAt(ctx, field)
+			case "completedAt":
+				return ec.fieldContext_Task_completedAt(ctx, field)
 			case "dueDate":
 				return ec.fieldContext_Task_dueDate(ctx, field)
 			case "events":
@@ -4356,6 +4467,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "taskRemove":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_taskRemove(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "login":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -4545,23 +4665,23 @@ func (ec *executionContext) _Task(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "timeCreated":
+		case "createdAt":
 
-			out.Values[i] = ec._Task_timeCreated(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "timeUpdated":
-
-			out.Values[i] = ec._Task_timeUpdated(ctx, field, obj)
+			out.Values[i] = ec._Task_createdAt(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "timeCompleted":
+		case "updatedAt":
 
-			out.Values[i] = ec._Task_timeCompleted(ctx, field, obj)
+			out.Values[i] = ec._Task_updatedAt(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "completedAt":
+
+			out.Values[i] = ec._Task_completedAt(ctx, field, obj)
 
 		case "dueDate":
 

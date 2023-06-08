@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -41,11 +43,38 @@ func main() {
 	c := graph.Config{Resolvers: r}
 	c.Directives.Auth = auth.AuthDirective
 
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(c))
+	var srv http.Handler = handler.NewDefaultServer(graph.NewExecutableSchema(c))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", auth.AuthMiddleware(userOrm)(srv))
+	middlewares := []middleware{auth.AuthMiddleware(userOrm), logRequestBody}
+	for _, middleware := range middlewares {
+		srv = middleware(srv)
+	}
+	http.Handle("/query", srv)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
+}
+
+type middleware func(http.Handler) http.Handler
+
+// LogRequestBody logs the request body for debugging purpose
+func logRequestBody(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Read the request body
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		// Log the request body
+		log.Println("Request Body:", string(body))
+
+		// Restore the request body for downstream handlers
+		r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+
+		// Call the next handler
+		next.ServeHTTP(w, r)
+	})
 }
