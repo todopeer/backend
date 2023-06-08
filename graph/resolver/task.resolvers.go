@@ -86,6 +86,28 @@ func (r *mutationResolver) TaskRemove(ctx context.Context, id int64) (*model.Tas
 	return convertToGraphTaskModel(task)
 }
 
+// TaskStart starts the given task, by: 1. set user.on to be that task; 2. set task status to be doing
+func (r *mutationResolver) TaskStart(ctx context.Context, id int64) (*model.Task, error) {
+	user := auth.UserFromContext(ctx)
+	task, err := r.taskOrm.GetTaskByID(id)
+	if err != nil {
+		return nil, err
+	}
+	if task == nil {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	if *task.UserID != user.ID {
+		return nil, errors.New("not authorized to update this task")
+	}
+
+	err = r.userORM.SetRunningTask(ctx, user, task)
+	if err != nil {
+		return nil, err
+	}
+	return convertToGraphTaskModel(task)
+}
+
 // Events is the resolver for the events field.
 func (r *queryResolver) Events(ctx context.Context, date time.Time) ([]*model.Event, error) {
 	panic(fmt.Errorf("not implemented: Events - events"))

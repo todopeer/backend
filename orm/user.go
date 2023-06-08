@@ -1,6 +1,8 @@
 package orm
 
 import (
+	"context"
+	"log"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -75,4 +77,28 @@ func (t *UserORM) GetUserByID(userID int64) (*User, error) {
 		return nil, err
 	}
 	return user, nil
+}
+
+func (o *UserORM) SetRunningTask(ctx context.Context, user *User, t *Task) error {
+	if user.RunningTaskID != nil && *user.RunningTaskID == t.ID {
+		// already running this task
+		return nil
+	}
+
+	return o.db.Transaction(func(tx *gorm.DB) error {
+		user.RunningTaskID = &t.ID
+		err := tx.Model(user).Update("running_task_id", t.ID).Error
+		if err != nil {
+			log.Println("db update user error: ", err)
+			return err
+		}
+
+		err = tx.Model(t).Update("status", ptrInt(TaskStatusDoing)).Error
+		log.Println("db update task error: ", err)
+		return err
+	})
+}
+
+func ptrInt(v int) *int {
+	return &v
 }
