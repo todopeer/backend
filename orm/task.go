@@ -41,8 +41,33 @@ func (t *TaskORM) CreateTask(task *Task) error {
 }
 
 // UpdateTask updates an existing task
-func (t *TaskORM) UpdateTask(task *Task) error {
-	return t.db.Update(task).Error
+func (t *TaskORM) UpdateTask(current, changes *Task, user *User) error {
+	// just in case if changes ID not set, set it
+	if changes.ID == 0 {
+		changes.ID = current.ID
+	}
+
+	return t.db.Transaction(func(tx *gorm.DB) error {
+		// if updating task to be nolonger doing, clear running task
+		if user != nil && user.RunningTaskID != nil && *user.RunningTaskID == current.ID && changes.Status != nil && *changes.Status != TaskStatusDoing {
+			t.db.Model(user).Update("running_task_id = ?", nil)
+		}
+
+		now := time.Now()
+
+		// if updating task to be completed (from non-completed), mark the completedAt
+		if *current.Status == TaskStatusDoing && changes.Status != nil && *changes.Status == TaskStatusDone {
+			changes.CompletedAt = &now
+		}
+
+		// if the completedAt already set, and marking status to be undone, to clear it
+		if *current.Status == TaskStatusDone && changes.Status != nil && *changes.Status != TaskStatusDone {
+			// TODO: might be wrong
+			changes.CompletedAt = nil
+		}
+
+		return t.db.Update(changes).Error
+	})
 }
 
 // DeleteTask deletes a task

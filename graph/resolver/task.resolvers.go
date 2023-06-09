@@ -51,14 +51,7 @@ func (r *mutationResolver) TaskUpdate(ctx context.Context, input model.TaskUpdat
 	}
 
 	changes := input.ChangesAsTask()
-	now := time.Now()
-	if changes.Status != nil && *changes.Status == orm.TaskStatusDone && *task.Status != orm.TaskStatusDone {
-		// status changed to done
-		changes.CompletedAt = &now
-	}
-	// TODO: consider clear completed_at, if undone a task
-
-	if err := r.taskOrm.UpdateTask(changes); err != nil {
+	if err := r.taskOrm.UpdateTask(task, changes, user); err != nil {
 		return nil, err
 	}
 
