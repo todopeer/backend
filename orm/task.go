@@ -46,8 +46,19 @@ func (t *TaskORM) UpdateTask(task *Task) error {
 }
 
 // DeleteTask deletes a task
-func (t *TaskORM) DeleteTask(task *Task) error {
-	return t.db.Delete(task).Error
+// if user is passed in, then also check if user.Running task is this task
+func (t *TaskORM) DeleteTask(task *Task, user *User) error {
+	return t.db.Transaction(func(tx *gorm.DB) error {
+		err := tx.Delete(task).Error
+		if err != nil {
+			return err
+		}
+
+		if user != nil && user.RunningTaskID != nil && *user.RunningTaskID == task.ID {
+			return tx.Model(&user).Update("running_task_id", nil).Error
+		}
+		return nil
+	})
 }
 
 // GetTaskByID retrieves a task by its ID

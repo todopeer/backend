@@ -13,6 +13,7 @@ type User struct {
 	ID            int64  `gorm:"primary_key"`
 	Email         string `gorm:"unique;not null"`
 	Name          *string
+	Username      *string `gorm:"unique"`
 	PasswordHash  string
 	RunningTaskID *int64
 	SessionID     int32
@@ -97,6 +98,15 @@ func (o *UserORM) SetRunningTask(ctx context.Context, user *User, t *Task) error
 		log.Println("db update task error: ", err)
 		return err
 	})
+}
+
+func (o *UserORM) GetUserByUsername(ctx context.Context, username string) (*User, error) {
+	res := &User{}
+	err := o.db.Where("username = ?", username).First(res).Error
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }
 
 func ptrInt(v int) *int {

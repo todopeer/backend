@@ -1,7 +1,15 @@
 type User {
 	id: ID!
+
+	# used for login, always private
 	email: String!
+
+	# the name shown to public
 	name: String
+
+	# if provided, would make your todo public
+	username: String
+
 	runningTask: Task
 }
 
@@ -10,6 +18,11 @@ input LoginInput {
 	password: String!
 }
 
+input UserUpdateInput {
+	id: ID!
+	name: String
+	username: String
+}
 
 extend type Query {
 	me: User @auth
@@ -18,9 +31,16 @@ extend type Query {
 extend type Mutation {
 	login(input: LoginInput!): AuthPayload!
 	logout: Boolean! @auth
+	userUpdate(input: UserUpdateInput!): User! @auth
 }
 
 type AuthPayload {
 	user: User!
 	token: String!
+}
+
+type UserPublic {
+	id: ID!
+	username: String
+	name: String
 }

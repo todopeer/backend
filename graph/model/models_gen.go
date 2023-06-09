@@ -36,6 +36,16 @@ type QueryTaskInput struct {
 	Status *TaskStatus `json:"status,omitempty"`
 }
 
+type QueryUserTaskResult struct {
+	User  *UserPublic `json:"user"`
+	Tasks []*Task     `json:"tasks,omitempty"`
+	Doing *Task       `json:"doing,omitempty"`
+}
+
+type QueryUserTasksInput struct {
+	Username string `json:"username"`
+}
+
 type Task struct {
 	ID          int64      `json:"id"`
 	Name        string     `json:"name"`
@@ -60,6 +70,18 @@ type TaskUpdateInput struct {
 	Description *string     `json:"description,omitempty"`
 	DueDate     *time.Time  `json:"dueDate,omitempty"`
 	Status      *TaskStatus `json:"status,omitempty"`
+}
+
+type UserPublic struct {
+	ID       int64   `json:"id"`
+	Username *string `json:"username,omitempty"`
+	Name     *string `json:"name,omitempty"`
+}
+
+type UserUpdateInput struct {
+	ID       int64   `json:"id"`
+	Name     *string `json:"name,omitempty"`
+	Username *string `json:"username,omitempty"`
 }
 
 type TaskStatus string

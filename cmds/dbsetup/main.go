@@ -26,6 +26,7 @@ func createTables(db *sql.DB) {
 		CREATE TABLE IF NOT EXISTS users (
 			id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 			email TEXT NOT NULL UNIQUE,
+			username TEXT,
 			name TEXT,
 			password_hash TEXT,
 			running_task_id INTEGER,
@@ -36,6 +37,7 @@ func createTables(db *sql.DB) {
 			FOREIGN KEY (running_task_id) REFERENCES tasks (id)
 		);`, []string{
 			"CREATE INDEX idx_users_email ON users(email);",
+			"CREATE INDEX idx_users_username ON users(username);",
 			"CREATE INDEX idx_users_created_at ON users(created_at);",
 			"CREATE INDEX idx_users_updated_at ON users(updated_at);",
 		},

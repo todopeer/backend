@@ -8,11 +8,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/flyfy1/diarier/graph/model"
 	"github.com/flyfy1/diarier/orm"
 	"github.com/flyfy1/diarier/services/auth"
+	"github.com/flyfy1/diarier/util"
 	"github.com/jinzhu/gorm"
 )
 
@@ -78,7 +80,7 @@ func (r *mutationResolver) TaskRemove(ctx context.Context, id int64) (*model.Tas
 		return nil, errors.New("not authorized to update this task")
 	}
 
-	err = r.taskOrm.DeleteTask(task)
+	err = r.taskOrm.DeleteTask(task, user)
 	if err != nil {
 		return nil, err
 	}
@@ -137,4 +139,39 @@ func (r *queryResolver) Tasks(ctx context.Context, input model.QueryTaskInput) (
 	}
 
 	return tasks, nil
+}
+
+// UserTasks is the resolver for the userTasks field.
+func (r *queryResolver) UserTasks(ctx context.Context, input model.QueryUserTasksInput) (*model.QueryUserTaskResult, error) {
+	user, err := r.userORM.GetUserByUsername(ctx, input.Username)
+	if err != nil {
+		return nil, err
+	}
+
+	// load task under this user
+	tasks, err := r.taskOrm.GetTasksByUserID(user.ID)
+	if err != nil {
+		return nil, err
+	}
+	taskResp, err := util.MapWithError(tasks, convertToGraphTaskModel)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &model.QueryUserTaskResult{
+		User:  convertToGraphPublicUserModel(user),
+		Tasks: taskResp,
+	}
+
+	if user.RunningTaskID != nil {
+		idx := util.FindBy(taskResp, func(t *model.Task) bool {
+			return t.ID == *user.RunningTaskID
+		})
+		if idx >= 0 {
+			res.Doing = taskResp[idx]
+		} else {
+			log.Println("RunningTaskID(=%d) exist but not in this user's task list", *user.RunningTaskID)
+		}
+	}
+	return res, nil
 }

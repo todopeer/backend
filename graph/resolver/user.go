@@ -9,20 +9,20 @@ import (
 func generateToken(user *orm.User) (string, error) {
 	return auth.GetTokenFromUser(user)
 }
+func convertToGraphPublicUserModel(user *orm.User) *model.UserPublic {
+	return &model.UserPublic{
+		ID:       user.ID,
+		Username: user.Username,
+		Name:     user.Name,
+	}
+}
 func convertToGraphUserModel(user *orm.User) (*model.User, error) {
 	// // TODO: lazy load the Task field instead
-	// var task *orm.Task
-	// if user.RunningTaskID != nil {
-	// 	task, err := r.taskOrm.GetTaskByID(*user.RunningTaskID)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// }
-
 	return &model.User{
-		ID:    user.ID,
-		Email: user.Email,
-		Name:  user.Name,
+		ID:       user.ID,
+		Email:    user.Email,
+		Username: user.Username,
+		Name:     user.Name,
 	}, nil
 }
 

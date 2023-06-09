@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/flyfy1/diarier/graph"
 	"github.com/flyfy1/diarier/graph/model"
 	"github.com/flyfy1/diarier/services/auth"
 )
@@ -76,9 +77,24 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 	return true, nil
 }
 
+// UserUpdate is the resolver for the userUpdate field.
+func (r *mutationResolver) UserUpdate(ctx context.Context, input model.UserUpdateInput) (*model.User, error) {
+	panic(fmt.Errorf("not implemented: UserUpdate - userUpdate"))
+}
+
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 	// Get user info from context. The actual implementation depends on how you handle authentication.
 	user := auth.UserFromContext(ctx)
 	return convertToGraphUserModel(user)
 }
+
+// Username is the resolver for the username field.
+func (r *userResolver) Username(ctx context.Context, obj *model.User) (*string, error) {
+	panic(fmt.Errorf("not implemented: Username - username"))
+}
+
+// User returns graph.UserResolver implementation.
+func (r *Resolver) User() graph.UserResolver { return &userResolver{r} }
+
+type userResolver struct{ *Resolver }
