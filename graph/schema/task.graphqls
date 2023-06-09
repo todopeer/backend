@@ -57,7 +57,7 @@ type QueryUserTaskResult {
 }
 
 extend type Query {
-	events(date: Time!): [Event!] @auth
+	# events(QueryEventInput!): [Event!] @auth
 	tasks(input: QueryTaskInput!): [Task!] @auth
 
 	# to view someone's task (of your interest)

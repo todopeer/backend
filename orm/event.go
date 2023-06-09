@@ -1,14 +1,17 @@
 package orm
 
 import (
+	"time"
+
 	"github.com/jinzhu/gorm"
 )
 
 type Event struct {
-	gorm.Model
-	TaskID   int
-	Timing   string // for simplicity, we use string here. But you might want to define a proper type for it
-	FullPomo bool
+	ID     int64
+	TaskID *int64
+
+	StartAt *time.Time
+	EndAt   *time.Time
 }
 
 type EventOrm struct {

@@ -46,14 +46,19 @@ func (t *TaskORM) UpdateTask(current, changes *Task, user *User) error {
 	if changes.ID == 0 {
 		changes.ID = current.ID
 	}
+	now := time.Now()
 
 	return t.db.Transaction(func(tx *gorm.DB) error {
 		// if updating task to be nolonger doing, clear running task
 		if user != nil && user.RunningTaskID != nil && *user.RunningTaskID == current.ID && changes.Status != nil && *changes.Status != TaskStatusDoing {
-			t.db.Model(user).Update("running_task_id = ?", nil)
-		}
+			tx.Model(user).Update("running_task_id = ?", nil)
 
-		now := time.Now()
+			// and mark the running event attached
+			err := tx.Table("events").Where("task_id = ? AND end_at IS NULL", current.ID).Update("end_at = ?", &now).Error
+			if err != nil {
+				return err
+			}
+		}
 
 		// if updating task to be completed (from non-completed), mark the completedAt
 		if *current.Status == TaskStatusDoing && changes.Status != nil && *changes.Status == TaskStatusDone {
@@ -66,7 +71,7 @@ func (t *TaskORM) UpdateTask(current, changes *Task, user *User) error {
 			changes.CompletedAt = nil
 		}
 
-		return t.db.Update(changes).Error
+		return tx.Update(changes).Error
 	})
 }
 

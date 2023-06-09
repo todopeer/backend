@@ -65,17 +65,15 @@ func createTables(db *sql.DB) {
 		CREATE TABLE IF NOT EXISTS events (
 			id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 			task_id INTEGER NOT NULL,
-			timing TEXT,
-			full_pomo BOOLEAN,
-			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			start_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			end_at TIMESTAMP,
 
 			FOREIGN KEY (task_id) REFERENCES tasks (id)
 		);
 		`, []string{
 			"CREATE INDEX idx_events_task_id ON events(task_id);",
-			"CREATE INDEX idx_events_time_created ON events(created_at);",
-			"CREATE INDEX idx_events_time_updated ON events(updated_at);",
+			"CREATE INDEX idx_events_time_start ON events(start_at);",
+			"CREATE INDEX idx_events_time_end ON events(end_at);",
 		},
 		},
 	}

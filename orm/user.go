@@ -87,6 +87,30 @@ func (o *UserORM) SetRunningTask(ctx context.Context, user *User, t *Task) error
 	}
 
 	return o.db.Transaction(func(tx *gorm.DB) error {
+		now := time.Now()
+		event := &Event{
+			TaskID:  &t.ID,
+			StartAt: &now,
+		}
+
+		if user.RunningTaskID != nil {
+			// re-setting ongoing task, no action needed
+			if *user.RunningTaskID == t.ID {
+				return nil
+			}
+
+			// pause event of previous running task
+			err := tx.
+				Model(event).
+				Where("task_id = ? AND end_at IS NULL", *user.RunningTaskID).
+				Update("end_at = ?", now).
+				Error
+
+			if err != nil {
+				return err
+			}
+		}
+
 		user.RunningTaskID = &t.ID
 		err := tx.Model(user).Update("running_task_id", t.ID).Error
 		if err != nil {
@@ -95,8 +119,12 @@ func (o *UserORM) SetRunningTask(ctx context.Context, user *User, t *Task) error
 		}
 
 		err = tx.Model(t).Update("status", ptrInt(TaskStatusDoing)).Error
-		log.Println("db update task error: ", err)
-		return err
+		if err != nil {
+			return err
+		}
+
+		// start a new event for this
+		return tx.Create(event).Error
 	})
 }
 
