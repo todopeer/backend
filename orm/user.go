@@ -103,7 +103,7 @@ func (o *UserORM) SetRunningTask(ctx context.Context, user *User, t *Task) error
 			err := tx.
 				Model(event).
 				Where("task_id = ? AND end_at IS NULL", *user.RunningTaskID).
-				Update("end_at = ?", now).
+				Update("end_at", now).
 				Error
 
 			if err != nil {
