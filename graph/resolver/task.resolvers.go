@@ -103,11 +103,6 @@ func (r *mutationResolver) TaskStart(ctx context.Context, id int64) (*model.Task
 	return convertToGraphTaskModel(task)
 }
 
-// Events is the resolver for the events field.
-func (r *queryResolver) Events(ctx context.Context, date time.Time) ([]*model.Event, error) {
-	panic(fmt.Errorf("not implemented: Events - events"))
-}
-
 // Tasks is the resolver for the tasks field.
 func (r *queryResolver) Tasks(ctx context.Context, input model.QueryTaskInput) ([]*model.Task, error) {
 	user := auth.UserFromContext(ctx)
@@ -167,4 +162,14 @@ func (r *queryResolver) UserTasks(ctx context.Context, input model.QueryUserTask
 		}
 	}
 	return res, nil
+}
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *queryResolver) Events(ctx context.Context, date time.Time) ([]*model.Event, error) {
+	panic(fmt.Errorf("not implemented: Events - events"))
 }

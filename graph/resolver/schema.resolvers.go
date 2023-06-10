@@ -6,25 +6,18 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/flyfy1/diarier/graph"
-	"github.com/flyfy1/diarier/graph/model"
 )
 
-// PomoStart is the resolver for the pomoStart field.
-func (r *mutationResolver) PomoStart(ctx context.Context, input model.PomoInput) (*model.Event, error) {
-	panic(fmt.Errorf("not implemented: PomoStart - pomoStart"))
-}
-
-// PomoPause is the resolver for the pomoPause field.
-func (r *mutationResolver) PomoPause(ctx context.Context, input model.PomoInput) (*model.Event, error) {
-	panic(fmt.Errorf("not implemented: PomoPause - pomoPause"))
+// Pong is the resolver for the pong field.
+func (r *mutationResolver) Pong(ctx context.Context) (bool, error) {
+	return true, nil
 }
 
 // Ping is the resolver for the ping field.
 func (r *queryResolver) Ping(ctx context.Context) (bool, error) {
-	panic(fmt.Errorf("not implemented: Ping - ping"))
+	return true, nil
 }
 
 // Mutation returns graph.MutationResolver implementation.

@@ -28,10 +28,6 @@ type LoginInput struct {
 	Password string `json:"password"`
 }
 
-type PomoInput struct {
-	TaskID int64 `json:"taskId"`
-}
-
 type QueryTaskInput struct {
 	Status *TaskStatus `json:"status,omitempty"`
 }

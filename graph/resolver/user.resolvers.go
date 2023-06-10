@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/flyfy1/diarier/graph"
 	"github.com/flyfy1/diarier/graph/model"
 	"github.com/flyfy1/diarier/services/auth"
 )
@@ -88,13 +87,3 @@ func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 	user := auth.UserFromContext(ctx)
 	return convertToGraphUserModel(user)
 }
-
-// Username is the resolver for the username field.
-func (r *userResolver) Username(ctx context.Context, obj *model.User) (*string, error) {
-	panic(fmt.Errorf("not implemented: Username - username"))
-}
-
-// User returns graph.UserResolver implementation.
-func (r *Resolver) User() graph.UserResolver { return &userResolver{r} }
-
-type userResolver struct{ *Resolver }

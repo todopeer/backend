@@ -3,14 +3,11 @@ scalar Date
 directive @auth on FIELD_DEFINITION
 
 type Query {
+	# dummy query, don't use
 	ping: Boolean!
 }
 
-input PomoInput {
-	taskId: ID!
-}
-
 type Mutation {
-	pomoStart(input: PomoInput!): Event! @auth
-	pomoPause(input: PomoInput!): Event! @auth
+	# dummy mutation, don't use
+	pong: Boolean!
 }
