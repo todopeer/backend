@@ -11,6 +11,7 @@ import (
 )
 
 var (
+	// TODO: replace this key with ENV variable
 	jwtKey = []byte("top-secret-key") // Use a strong secret key for your JWT tokens
 )
 
