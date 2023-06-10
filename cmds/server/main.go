@@ -9,11 +9,11 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/flyfy1/diarier/graph"
-	"github.com/flyfy1/diarier/graph/resolver"
-	"github.com/flyfy1/diarier/orm"
-	"github.com/flyfy1/diarier/services/auth"
 	"github.com/jinzhu/gorm"
+	"github.com/todopeer/backend/graph"
+	"github.com/todopeer/backend/graph/resolver"
+	"github.com/todopeer/backend/orm"
+	"github.com/todopeer/backend/services/auth"
 
 	_ "github.com/mattn/go-sqlite3"
 )

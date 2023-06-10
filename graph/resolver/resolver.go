@@ -1,6 +1,6 @@
 package resolver
 
-import "github.com/flyfy1/diarier/orm"
+import "github.com/todopeer/backend/orm"
 
 // This file will not be regenerated automatically.
 //

@@ -1,8 +1,8 @@
 package resolver
 
 import (
-	"github.com/flyfy1/diarier/graph/model"
-	"github.com/flyfy1/diarier/orm"
+	"github.com/todopeer/backend/graph/model"
+	"github.com/todopeer/backend/orm"
 )
 
 func convertToGraphTaskModel(task *orm.Task) (*model.Task, error) {

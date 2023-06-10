@@ -1,4 +1,4 @@
-module github.com/flyfy1/diarier
+module github.com/todopeer/backend
 
 go 1.20
 

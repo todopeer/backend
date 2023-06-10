@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/flyfy1/diarier/orm"
+	"github.com/todopeer/backend/orm"
 )
 
 var (
@@ -17,7 +17,7 @@ var (
 
 const (
 	jwtExpireDuration = 72 * time.Hour // Tokens will expire after 72 hours
-	jwtIssuer         = "diarier.com"
+	jwtIssuer         = "todopeer.com"
 )
 
 func tokenToClaim(tokenStr string) (*jwt.StandardClaims, error) {

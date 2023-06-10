@@ -9,8 +9,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/flyfy1/diarier/graph/model"
-	"github.com/flyfy1/diarier/services/auth"
+	"github.com/todopeer/backend/graph/model"
+	"github.com/todopeer/backend/services/auth"
 )
 
 // Login is the resolver for the login field.

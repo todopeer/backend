@@ -7,9 +7,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/flyfy1/diarier/orm"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/todopeer/backend/orm"
 )
 
 func main() {

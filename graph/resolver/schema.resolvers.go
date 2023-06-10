@@ -7,7 +7,7 @@ package resolver
 import (
 	"context"
 
-	"github.com/flyfy1/diarier/graph"
+	"github.com/todopeer/backend/graph"
 )
 
 // Pong is the resolver for the pong field.

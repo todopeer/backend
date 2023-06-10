@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/flyfy1/diarier/orm"
+	"github.com/todopeer/backend/orm"
 )
 
 func TaskStatusToInt(status TaskStatus) int {

@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/flyfy1/diarier/orm"
 	"github.com/stretchr/testify/assert"
+	"github.com/todopeer/backend/orm"
 )
 
 func TestGetTokenFromUser(t *testing.T) {

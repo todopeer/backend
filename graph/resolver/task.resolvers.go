@@ -11,11 +11,11 @@ import (
 	"log"
 	"time"
 
-	"github.com/flyfy1/diarier/graph/model"
-	"github.com/flyfy1/diarier/orm"
-	"github.com/flyfy1/diarier/services/auth"
-	"github.com/flyfy1/diarier/util"
 	"github.com/jinzhu/gorm"
+	"github.com/todopeer/backend/graph/model"
+	"github.com/todopeer/backend/orm"
+	"github.com/todopeer/backend/services/auth"
+	"github.com/todopeer/backend/util"
 )
 
 // TaskCreate is the resolver for the taskCreate field.

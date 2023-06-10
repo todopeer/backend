@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/flyfy1/diarier/orm"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/todopeer/backend/orm"
 )
 
 func InitDB() *sql.DB {

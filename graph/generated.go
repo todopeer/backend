@@ -15,7 +15,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/flyfy1/diarier/graph/model"
+	"github.com/todopeer/backend/graph/model"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -809,7 +809,7 @@ func (ec *executionContext) _Mutation_taskCreate(ctx context.Context, field grap
 		if data, ok := tmp.(*model.Task); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/flyfy1/diarier/graph/model.Task`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/todopeer/backend/graph/model.Task`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -904,7 +904,7 @@ func (ec *executionContext) _Mutation_taskUpdate(ctx context.Context, field grap
 		if data, ok := tmp.(*model.Task); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/flyfy1/diarier/graph/model.Task`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/todopeer/backend/graph/model.Task`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -999,7 +999,7 @@ func (ec *executionContext) _Mutation_taskRemove(ctx context.Context, field grap
 		if data, ok := tmp.(*model.Task); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/flyfy1/diarier/graph/model.Task`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/todopeer/backend/graph/model.Task`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1094,7 +1094,7 @@ func (ec *executionContext) _Mutation_taskStart(ctx context.Context, field graph
 		if data, ok := tmp.(*model.Task); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/flyfy1/diarier/graph/model.Task`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/todopeer/backend/graph/model.Task`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1314,7 +1314,7 @@ func (ec *executionContext) _Mutation_userUpdate(ctx context.Context, field grap
 		if data, ok := tmp.(*model.User); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/flyfy1/diarier/graph/model.User`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/todopeer/backend/graph/model.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1445,7 +1445,7 @@ func (ec *executionContext) _Query_tasks(ctx context.Context, field graphql.Coll
 		if data, ok := tmp.([]*model.Task); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/flyfy1/diarier/graph/model.Task`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/todopeer/backend/graph/model.Task`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1600,7 +1600,7 @@ func (ec *executionContext) _Query_me(ctx context.Context, field graphql.Collect
 		if data, ok := tmp.(*model.User); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/flyfy1/diarier/graph/model.User`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/todopeer/backend/graph/model.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
