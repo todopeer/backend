@@ -4,11 +4,16 @@ import (
 	"github.com/todopeer/backend/orm"
 )
 
+var m = map[TaskStatus]int{
+	TaskStatusNotStarted: orm.TaskStatusNotStarted,
+	TaskStatusDoing: orm.TaskStatusDoing,
+	TaskStatusDone: orm.TaskStatusDone,
+}
+
 func TaskStatusToInt(status TaskStatus) int {
-	for i, defined := range AllTaskStatus {
-		if status == defined {
-			return i
-		}
+	v, found := m[status]
+	if found {
+		return v
 	}
 
 	// cannot find

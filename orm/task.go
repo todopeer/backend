@@ -26,6 +26,33 @@ type Task struct {
 	DueDate *time.Time
 }
 
+func (t *Task) Merge(changes *Task) {
+	if changes.UserID != nil {
+		t.UserID = changes.UserID
+	}
+	if changes.Name != nil {
+		t.Name = changes.Name
+	}
+	if changes.Description != nil {
+		t.Description = changes.Description
+	}
+	if changes.Status != nil {
+		t.Status = changes.Status
+	}
+	if changes.CreatedAt != nil {
+		t.CreatedAt = changes.CreatedAt
+	}
+	if changes.UpdatedAt != nil {
+		t.UpdatedAt = changes.UpdatedAt
+	}
+	if changes.CompletedAt != nil {
+		t.CompletedAt = changes.CompletedAt
+	}
+	if changes.DueDate != nil {
+		t.DueDate = changes.DueDate
+	}
+}
+
 type TaskORM struct {
 	db *gorm.DB
 }
@@ -71,7 +98,9 @@ func (t *TaskORM) UpdateTask(current, changes *Task, user *User) error {
 			changes.CompletedAt = nil
 		}
 
-		return tx.Update(changes).Error
+		current.Merge(changes)
+
+		return tx.Model(changes).Update(changes).Error
 	})
 }
 

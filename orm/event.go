@@ -26,7 +26,7 @@ func NewEventOrm(db *gorm.DB) *EventOrm {
 
 func (e *EventOrm) GetEventsByTaskID(taskID int) ([]*Event, error) {
 	var events []*Event
-	if err := e.DB.Where("task_id = ?", taskID).Find(&events).Error; err != nil {
+	if err := e.DB.Model(Event{}).Where("task_id = ?", taskID).Find(&events).Error; err != nil {
 		return nil, err
 	}
 	return events, nil
