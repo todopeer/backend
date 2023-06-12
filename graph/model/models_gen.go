@@ -29,7 +29,13 @@ type LoginInput struct {
 }
 
 type QueryTaskInput struct {
-	Status *TaskStatus `json:"status,omitempty"`
+	Status  []TaskStatus      `json:"status,omitempty"`
+	OrderBy *QueryTaskOrderBy `json:"orderBy,omitempty"`
+}
+
+type QueryTaskOrderBy struct {
+	Field     QueryTaskOrderField `json:"field"`
+	Direction *OrderDirection     `json:"direction,omitempty"`
 }
 
 type QueryUserTaskResult struct {
@@ -74,9 +80,95 @@ type UserPublic struct {
 }
 
 type UserUpdateInput struct {
-	ID       int64   `json:"id"`
 	Name     *string `json:"name,omitempty"`
 	Username *string `json:"username,omitempty"`
+	Password *string `json:"password,omitempty"`
+}
+
+type OrderDirection string
+
+const (
+	OrderDirectionAsc  OrderDirection = "ASC"
+	OrderDirectionDesc OrderDirection = "DESC"
+)
+
+var AllOrderDirection = []OrderDirection{
+	OrderDirectionAsc,
+	OrderDirectionDesc,
+}
+
+func (e OrderDirection) IsValid() bool {
+	switch e {
+	case OrderDirectionAsc, OrderDirectionDesc:
+		return true
+	}
+	return false
+}
+
+func (e OrderDirection) String() string {
+	return string(e)
+}
+
+func (e *OrderDirection) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OrderDirection(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OrderDirection", str)
+	}
+	return nil
+}
+
+func (e OrderDirection) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type QueryTaskOrderField string
+
+const (
+	QueryTaskOrderFieldCreatedAt QueryTaskOrderField = "CREATED_AT"
+	QueryTaskOrderFieldUpdatedAt QueryTaskOrderField = "UPDATED_AT"
+	QueryTaskOrderFieldID        QueryTaskOrderField = "ID"
+	QueryTaskOrderFieldStatus    QueryTaskOrderField = "STATUS"
+)
+
+var AllQueryTaskOrderField = []QueryTaskOrderField{
+	QueryTaskOrderFieldCreatedAt,
+	QueryTaskOrderFieldUpdatedAt,
+	QueryTaskOrderFieldID,
+	QueryTaskOrderFieldStatus,
+}
+
+func (e QueryTaskOrderField) IsValid() bool {
+	switch e {
+	case QueryTaskOrderFieldCreatedAt, QueryTaskOrderFieldUpdatedAt, QueryTaskOrderFieldID, QueryTaskOrderFieldStatus:
+		return true
+	}
+	return false
+}
+
+func (e QueryTaskOrderField) String() string {
+	return string(e)
+}
+
+func (e *QueryTaskOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = QueryTaskOrderField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid QueryTaskOrderField", str)
+	}
+	return nil
+}
+
+func (e QueryTaskOrderField) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type TaskStatus string

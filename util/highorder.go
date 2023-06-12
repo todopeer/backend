@@ -1,5 +1,15 @@
 package util
 
+func Map[A, B any](arr []A, m func(A) B) []B {
+	res := make([]B, len(arr))
+
+	for i, a := range arr {
+		res[i] = m(a)
+	}
+	return res
+
+}
+
 func MapWithError[A, B any](arr []A, m func(A) (B, error)) ([]B, error) {
 	res := make([]B, len(arr))
 

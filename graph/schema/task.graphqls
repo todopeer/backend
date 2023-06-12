@@ -40,8 +40,26 @@ input TaskUpdateInput {
 	status: TaskStatus
 }
 
+enum QueryTaskOrderField {
+	CREATED_AT	# default
+	UPDATED_AT
+	ID
+	STATUS
+}
+
+enum OrderDirection {
+	ASC  # default
+	DESC
+}
+
+input QueryTaskOrderBy {
+	field: QueryTaskOrderField!
+	direction: OrderDirection
+}
+
 input QueryTaskInput {
-	status: TaskStatus
+	status: [TaskStatus!]
+	orderBy: QueryTaskOrderBy
 }
 
 input QueryUserTasksInput {

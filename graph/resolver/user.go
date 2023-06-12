@@ -16,14 +16,14 @@ func convertToGraphPublicUserModel(user *orm.User) *model.UserPublic {
 		Name:     user.Name,
 	}
 }
-func convertToGraphUserModel(user *orm.User) (*model.User, error) {
+func convertToGraphUserModel(user *orm.User) *model.User {
 	// // TODO: lazy load the Task field instead
 	return &model.User{
 		ID:       user.ID,
 		Email:    user.Email,
 		Username: user.Username,
 		Name:     user.Name,
-	}, nil
+	}
 }
 
 // func (r *queryResolver) convertToGraphTaskModel(task *orm.Task) (*model.Task, error) {

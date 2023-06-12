@@ -89,6 +89,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputLoginInput,
 		ec.unmarshalInputQueryTaskInput,
+		ec.unmarshalInputQueryTaskOrderBy,
 		ec.unmarshalInputQueryUserTasksInput,
 		ec.unmarshalInputTaskCreateInput,
 		ec.unmarshalInputTaskUpdateInput,
@@ -4524,7 +4525,7 @@ func (ec *executionContext) unmarshalInputQueryTaskInput(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"status"}
+	fieldsInOrder := [...]string{"status", "orderBy"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4535,11 +4536,58 @@ func (ec *executionContext) unmarshalInputQueryTaskInput(ctx context.Context, ob
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
-			data, err := ec.unmarshalOTaskStatus2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskStatus(ctx, v)
+			data, err := ec.unmarshalOTaskStatus2ᚕgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskStatusᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Status = data
+		case "orderBy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+			data, err := ec.unmarshalOQueryTaskOrderBy2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐQueryTaskOrderBy(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OrderBy = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputQueryTaskOrderBy(ctx context.Context, obj interface{}) (model.QueryTaskOrderBy, error) {
+	var it model.QueryTaskOrderBy
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"field", "direction"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "field":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNQueryTaskOrderField2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐQueryTaskOrderField(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		case "direction":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalOOrderDirection2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐOrderDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
 		}
 	}
 
@@ -4685,22 +4733,13 @@ func (ec *executionContext) unmarshalInputUserUpdateInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "name", "username"}
+	fieldsInOrder := [...]string{"name", "username", "password"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalNID2int64(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ID = data
 		case "name":
 			var err error
 
@@ -4719,6 +4758,15 @@ func (ec *executionContext) unmarshalInputUserUpdateInput(ctx context.Context, o
 				return it, err
 			}
 			it.Username = data
+		case "password":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Password = data
 		}
 	}
 
@@ -5634,6 +5682,16 @@ func (ec *executionContext) unmarshalNQueryTaskInput2githubᚗcomᚋtodopeerᚋb
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNQueryTaskOrderField2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐQueryTaskOrderField(ctx context.Context, v interface{}) (model.QueryTaskOrderField, error) {
+	var res model.QueryTaskOrderField
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNQueryTaskOrderField2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐQueryTaskOrderField(ctx context.Context, sel ast.SelectionSet, v model.QueryTaskOrderField) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNQueryUserTaskResult2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐQueryUserTaskResult(ctx context.Context, sel ast.SelectionSet, v model.QueryUserTaskResult) graphql.Marshaler {
 	return ec._QueryUserTaskResult(ctx, sel, &v)
 }
@@ -6099,6 +6157,30 @@ func (ec *executionContext) marshalOEvent2ᚕᚖgithubᚗcomᚋtodopeerᚋbacken
 	return ret
 }
 
+func (ec *executionContext) unmarshalOOrderDirection2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐOrderDirection(ctx context.Context, v interface{}) (*model.OrderDirection, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.OrderDirection)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOOrderDirection2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐOrderDirection(ctx context.Context, sel ast.SelectionSet, v *model.OrderDirection) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) unmarshalOQueryTaskOrderBy2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐQueryTaskOrderBy(ctx context.Context, v interface{}) (*model.QueryTaskOrderBy, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputQueryTaskOrderBy(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
 	if v == nil {
 		return nil, nil
@@ -6167,6 +6249,73 @@ func (ec *executionContext) marshalOTask2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋ
 		return graphql.Null
 	}
 	return ec._Task(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOTaskStatus2ᚕgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskStatusᚄ(ctx context.Context, v interface{}) ([]model.TaskStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]model.TaskStatus, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNTaskStatus2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskStatus(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOTaskStatus2ᚕgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskStatusᚄ(ctx context.Context, sel ast.SelectionSet, v []model.TaskStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTaskStatus2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskStatus(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalOTaskStatus2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, v interface{}) (*model.TaskStatus, error) {
