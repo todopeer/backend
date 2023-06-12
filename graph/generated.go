@@ -62,9 +62,8 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Ping(ctx context.Context) (bool, error)
 	Tasks(ctx context.Context, input model.QueryTaskInput) ([]*model.Task, error)
-	UserTasks(ctx context.Context, input model.QueryUserTasksInput) (*model.QueryUserTaskResult, error)
+	UserTasks(ctx context.Context, username string) (*model.QueryUserTaskResult, error)
 	Me(ctx context.Context) (*model.User, error)
-	PublicUser(ctx context.Context, username string) (*model.UserPublic, error)
 }
 
 type executableSchema struct {
@@ -289,21 +288,6 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_publicUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["username"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["username"] = arg0
-	return args, nil
-}
-
 func (ec *executionContext) field_Query_tasks_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -322,15 +306,15 @@ func (ec *executionContext) field_Query_tasks_args(ctx context.Context, rawArgs 
 func (ec *executionContext) field_Query_userTasks_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.QueryUserTasksInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNQueryUserTasksInput2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐQueryUserTasksInput(ctx, tmp)
+	var arg0 string
+	if tmp, ok := rawArgs["username"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["input"] = arg0
+	args["username"] = arg0
 	return args, nil
 }
 
@@ -1542,7 +1526,7 @@ func (ec *executionContext) _Query_userTasks(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().UserTasks(rctx, fc.Args["input"].(model.QueryUserTasksInput))
+		return ec.resolvers.Query().UserTasks(rctx, fc.Args["username"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1660,69 +1644,6 @@ func (ec *executionContext) fieldContext_Query_me(ctx context.Context, field gra
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_publicUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_publicUser(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().PublicUser(rctx, fc.Args["username"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.UserPublic)
-	fc.Result = res
-	return ec.marshalNUserPublic2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐUserPublic(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_publicUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_UserPublic_id(ctx, field)
-			case "username":
-				return ec.fieldContext_UserPublic_username(ctx, field)
-			case "name":
-				return ec.fieldContext_UserPublic_name(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type UserPublic", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_publicUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
 	}
 	return fc, nil
 }
@@ -5117,29 +5038,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "publicUser":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_publicUser(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
 		case "__type":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -5750,11 +5648,6 @@ func (ec *executionContext) marshalNQueryUserTaskResult2ᚖgithubᚗcomᚋtodope
 	return ec._QueryUserTaskResult(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNQueryUserTasksInput2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐQueryUserTasksInput(ctx context.Context, v interface{}) (model.QueryUserTasksInput, error) {
-	res, err := ec.unmarshalInputQueryUserTasksInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5863,10 +5756,6 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋ
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNUserPublic2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐUserPublic(ctx context.Context, sel ast.SelectionSet, v model.UserPublic) graphql.Marshaler {
-	return ec._UserPublic(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNUserPublic2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐUserPublic(ctx context.Context, sel ast.SelectionSet, v *model.UserPublic) graphql.Marshaler {

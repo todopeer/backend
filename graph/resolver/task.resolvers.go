@@ -128,8 +128,8 @@ func (r *queryResolver) Tasks(ctx context.Context, input model.QueryTaskInput) (
 }
 
 // UserTasks is the resolver for the userTasks field.
-func (r *queryResolver) UserTasks(ctx context.Context, input model.QueryUserTasksInput) (*model.QueryUserTaskResult, error) {
-	user, err := r.userORM.GetUserByUsername(ctx, input.Username)
+func (r *queryResolver) UserTasks(ctx context.Context, username string) (*model.QueryUserTaskResult, error) {
+	user, err := r.userORM.GetUserByUsername(ctx, username)
 	if err != nil {
 		return nil, err
 	}

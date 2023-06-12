@@ -59,7 +59,7 @@ extend type Query {
 	tasks(input: QueryTaskInput!): [Task!] @auth
 
 	# to view someone's task (of your interest)
-	userTasks(input: QueryUserTasksInput!): QueryUserTaskResult!
+	userTasks(username: String!): QueryUserTaskResult!
 }
 
 extend type Mutation {

@@ -87,8 +87,3 @@ func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 	user := auth.UserFromContext(ctx)
 	return convertToGraphUserModel(user)
 }
-
-// PublicUser is the resolver for the publicUser field.
-func (r *queryResolver) PublicUser(ctx context.Context, username string) (*model.UserPublic, error) {
-	panic(fmt.Errorf("not implemented: PublicUser - publicUser"))
-}

@@ -24,14 +24,14 @@ func main() {
 
 	fmt.Println("Enter email:")
 	email, _ := reader.ReadString('\n')
+	email = strings.TrimSpace(email)
 
 	fmt.Println("Enter name:")
 	name, _ := reader.ReadString('\n')
-
 	name = strings.TrimSpace(name)
 
 	user := &orm.User{
-		Email: strings.TrimSpace(email),
+		Email: email,
 		Name:  &name,
 	}
 
