@@ -74,9 +74,9 @@ type UserPublic struct {
 }
 
 type UserUpdateInput struct {
-	ID       int64   `json:"id"`
 	Name     *string `json:"name,omitempty"`
 	Username *string `json:"username,omitempty"`
+	Password *string `json:"password,omitempty"`
 }
 
 type TaskStatus string

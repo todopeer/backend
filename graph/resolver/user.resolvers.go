@@ -37,10 +37,10 @@ func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*
 	}
 
 	// Convert the User ORM model to a GraphQL model before returning
-	graphUser, err := convertToGraphUserModel(user)
-	if err != nil {
-		return nil, fmt.Errorf("convertion error")
-	}
+	graphUser := convertToGraphUserModel(user)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("convertion error")
+	// }
 
 	return &model.AuthPayload{
 		User:  graphUser,
@@ -78,12 +78,30 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 
 // UserUpdate is the resolver for the userUpdate field.
 func (r *mutationResolver) UserUpdate(ctx context.Context, input model.UserUpdateInput) (*model.User, error) {
-	panic(fmt.Errorf("not implemented: UserUpdate - userUpdate"))
+	user := auth.UserFromContext(ctx)
+
+	if input.Name != nil {
+		user.Name = input.Name
+	}
+
+	if input.Username != nil {
+		user.Username = input.Username
+	}
+
+	if input.Password != nil {
+		err := user.SetPassword(*input.Password)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	err := r.userORM.UpdateUser(user)
+	return convertToGraphUserModel(user), err
 }
 
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 	// Get user info from context. The actual implementation depends on how you handle authentication.
 	user := auth.UserFromContext(ctx)
-	return convertToGraphUserModel(user)
+	return convertToGraphUserModel(user), nil
 }

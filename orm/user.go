@@ -63,7 +63,7 @@ func (u *UserORM) CreateUser(user *User) error {
 
 // UpdateUser updates an existing user
 func (u *UserORM) UpdateUser(user *User) error {
-	return u.db.Save(user).Error
+	return u.db.Model(user).Update(user).Error
 }
 
 // DeleteUser deletes a user
