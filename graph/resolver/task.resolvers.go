@@ -7,9 +7,7 @@ package resolver
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
-	"time"
 
 	"github.com/jinzhu/gorm"
 	"github.com/todopeer/backend/graph/model"
@@ -39,9 +37,9 @@ func (r *mutationResolver) TaskCreate(ctx context.Context, input model.TaskCreat
 }
 
 // TaskUpdate is the resolver for the taskUpdate field.
-func (r *mutationResolver) TaskUpdate(ctx context.Context, input model.TaskUpdateInput) (*model.Task, error) {
+func (r *mutationResolver) TaskUpdate(ctx context.Context, id int64, input model.TaskUpdateInput) (*model.Task, error) {
 	user := auth.UserFromContext(ctx)
-	task, err := r.taskOrm.GetTaskByID(input.TaskID)
+	task, err := r.taskOrm.GetTaskByID(id)
 	if err != nil {
 		return nil, err
 	}
@@ -162,14 +160,4 @@ func (r *queryResolver) UserTasks(ctx context.Context, input model.QueryUserTask
 		}
 	}
 	return res, nil
-}
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *queryResolver) Events(ctx context.Context, date time.Time) ([]*model.Event, error) {
-	panic(fmt.Errorf("not implemented: Events - events"))
 }

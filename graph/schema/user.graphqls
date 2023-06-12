@@ -26,6 +26,7 @@ input UserUpdateInput {
 
 extend type Query {
 	me: User @auth
+	publicUser(username: String!): UserPublic!
 }
 
 extend type Mutation {

@@ -61,7 +61,6 @@ type TaskCreateInput struct {
 }
 
 type TaskUpdateInput struct {
-	TaskID      int64       `json:"taskId"`
 	Name        *string     `json:"name,omitempty"`
 	Description *string     `json:"description,omitempty"`
 	DueDate     *time.Time  `json:"dueDate,omitempty"`

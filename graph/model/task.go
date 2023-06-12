@@ -22,7 +22,6 @@ func TaskStatusToInt(status TaskStatus) int {
 
 func (input *TaskUpdateInput) ChangesAsTask() *orm.Task {
 	res := &orm.Task{
-		ID:          input.TaskID,
 		Name:        input.Name,
 		Description: input.Description,
 		DueDate:     input.DueDate,

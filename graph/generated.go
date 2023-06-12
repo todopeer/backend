@@ -52,7 +52,7 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	Pong(ctx context.Context) (bool, error)
 	TaskCreate(ctx context.Context, input model.TaskCreateInput) (*model.Task, error)
-	TaskUpdate(ctx context.Context, input model.TaskUpdateInput) (*model.Task, error)
+	TaskUpdate(ctx context.Context, id int64, input model.TaskUpdateInput) (*model.Task, error)
 	TaskRemove(ctx context.Context, id int64) (*model.Task, error)
 	TaskStart(ctx context.Context, id int64) (*model.Task, error)
 	Login(ctx context.Context, input model.LoginInput) (*model.AuthPayload, error)
@@ -64,6 +64,7 @@ type QueryResolver interface {
 	Tasks(ctx context.Context, input model.QueryTaskInput) ([]*model.Task, error)
 	UserTasks(ctx context.Context, input model.QueryUserTasksInput) (*model.QueryUserTaskResult, error)
 	Me(ctx context.Context) (*model.User, error)
+	PublicUser(ctx context.Context, username string) (*model.UserPublic, error)
 }
 
 type executableSchema struct {
@@ -180,7 +181,7 @@ func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawAr
 	var arg0 model.LoginInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNLoginInput2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐLoginInput(ctx, tmp)
+		arg0, err = ec.unmarshalNLoginInput2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐLoginInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -195,7 +196,7 @@ func (ec *executionContext) field_Mutation_taskCreate_args(ctx context.Context, 
 	var arg0 model.TaskCreateInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNTaskCreateInput2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskCreateInput(ctx, tmp)
+		arg0, err = ec.unmarshalNTaskCreateInput2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskCreateInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -237,15 +238,24 @@ func (ec *executionContext) field_Mutation_taskStart_args(ctx context.Context, r
 func (ec *executionContext) field_Mutation_taskUpdate_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.TaskUpdateInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNTaskUpdateInput2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskUpdateInput(ctx, tmp)
+	var arg0 int64
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["input"] = arg0
+	args["id"] = arg0
+	var arg1 model.TaskUpdateInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg1, err = ec.unmarshalNTaskUpdateInput2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskUpdateInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
 	return args, nil
 }
 
@@ -255,7 +265,7 @@ func (ec *executionContext) field_Mutation_userUpdate_args(ctx context.Context, 
 	var arg0 model.UserUpdateInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUserUpdateInput2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐUserUpdateInput(ctx, tmp)
+		arg0, err = ec.unmarshalNUserUpdateInput2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐUserUpdateInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -279,13 +289,28 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_publicUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["username"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["username"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_tasks_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 model.QueryTaskInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNQueryTaskInput2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐQueryTaskInput(ctx, tmp)
+		arg0, err = ec.unmarshalNQueryTaskInput2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐQueryTaskInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -300,7 +325,7 @@ func (ec *executionContext) field_Query_userTasks_args(ctx context.Context, rawA
 	var arg0 model.QueryUserTasksInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNQueryUserTasksInput2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐQueryUserTasksInput(ctx, tmp)
+		arg0, err = ec.unmarshalNQueryUserTasksInput2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐQueryUserTasksInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -375,7 +400,7 @@ func (ec *executionContext) _AuthPayload_user(ctx context.Context, field graphql
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuthPayload_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -519,7 +544,7 @@ func (ec *executionContext) _Event_task(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.(*model.Task)
 	fc.Result = res
-	return ec.marshalNTask2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTask(ctx, field.Selections, res)
+	return ec.marshalNTask2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTask(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Event_task(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -823,7 +848,7 @@ func (ec *executionContext) _Mutation_taskCreate(ctx context.Context, field grap
 	}
 	res := resTmp.(*model.Task)
 	fc.Result = res
-	return ec.marshalNTask2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTask(ctx, field.Selections, res)
+	return ec.marshalNTask2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTask(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_taskCreate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -885,7 +910,7 @@ func (ec *executionContext) _Mutation_taskUpdate(ctx context.Context, field grap
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().TaskUpdate(rctx, fc.Args["input"].(model.TaskUpdateInput))
+			return ec.resolvers.Mutation().TaskUpdate(rctx, fc.Args["id"].(int64), fc.Args["input"].(model.TaskUpdateInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.Auth == nil {
@@ -918,7 +943,7 @@ func (ec *executionContext) _Mutation_taskUpdate(ctx context.Context, field grap
 	}
 	res := resTmp.(*model.Task)
 	fc.Result = res
-	return ec.marshalNTask2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTask(ctx, field.Selections, res)
+	return ec.marshalNTask2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTask(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_taskUpdate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1013,7 +1038,7 @@ func (ec *executionContext) _Mutation_taskRemove(ctx context.Context, field grap
 	}
 	res := resTmp.(*model.Task)
 	fc.Result = res
-	return ec.marshalNTask2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTask(ctx, field.Selections, res)
+	return ec.marshalNTask2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTask(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_taskRemove(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1108,7 +1133,7 @@ func (ec *executionContext) _Mutation_taskStart(ctx context.Context, field graph
 	}
 	res := resTmp.(*model.Task)
 	fc.Result = res
-	return ec.marshalNTask2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTask(ctx, field.Selections, res)
+	return ec.marshalNTask2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTask(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_taskStart(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1183,7 +1208,7 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 	}
 	res := resTmp.(*model.AuthPayload)
 	fc.Result = res
-	return ec.marshalNAuthPayload2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐAuthPayload(ctx, field.Selections, res)
+	return ec.marshalNAuthPayload2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐAuthPayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1328,7 +1353,7 @@ func (ec *executionContext) _Mutation_userUpdate(ctx context.Context, field grap
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_userUpdate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1456,7 +1481,7 @@ func (ec *executionContext) _Query_tasks(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.([]*model.Task)
 	fc.Result = res
-	return ec.marshalOTask2ᚕᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskᚄ(ctx, field.Selections, res)
+	return ec.marshalOTask2ᚕᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_tasks(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1531,7 +1556,7 @@ func (ec *executionContext) _Query_userTasks(ctx context.Context, field graphql.
 	}
 	res := resTmp.(*model.QueryUserTaskResult)
 	fc.Result = res
-	return ec.marshalNQueryUserTaskResult2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐQueryUserTaskResult(ctx, field.Selections, res)
+	return ec.marshalNQueryUserTaskResult2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐQueryUserTaskResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_userTasks(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1611,7 +1636,7 @@ func (ec *executionContext) _Query_me(ctx context.Context, field graphql.Collect
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalOUser2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalOUser2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_me(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1635,6 +1660,69 @@ func (ec *executionContext) fieldContext_Query_me(ctx context.Context, field gra
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_publicUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_publicUser(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().PublicUser(rctx, fc.Args["username"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.UserPublic)
+	fc.Result = res
+	return ec.marshalNUserPublic2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐUserPublic(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_publicUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_UserPublic_id(ctx, field)
+			case "username":
+				return ec.fieldContext_UserPublic_username(ctx, field)
+			case "name":
+				return ec.fieldContext_UserPublic_name(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UserPublic", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_publicUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -1796,7 +1884,7 @@ func (ec *executionContext) _QueryUserTaskResult_user(ctx context.Context, field
 	}
 	res := resTmp.(*model.UserPublic)
 	fc.Result = res
-	return ec.marshalNUserPublic2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐUserPublic(ctx, field.Selections, res)
+	return ec.marshalNUserPublic2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐUserPublic(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryUserTaskResult_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1845,7 +1933,7 @@ func (ec *executionContext) _QueryUserTaskResult_tasks(ctx context.Context, fiel
 	}
 	res := resTmp.([]*model.Task)
 	fc.Result = res
-	return ec.marshalOTask2ᚕᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskᚄ(ctx, field.Selections, res)
+	return ec.marshalOTask2ᚕᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryUserTaskResult_tasks(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1906,7 +1994,7 @@ func (ec *executionContext) _QueryUserTaskResult_doing(ctx context.Context, fiel
 	}
 	res := resTmp.(*model.Task)
 	fc.Result = res
-	return ec.marshalOTask2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTask(ctx, field.Selections, res)
+	return ec.marshalOTask2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTask(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryUserTaskResult_doing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2099,7 +2187,7 @@ func (ec *executionContext) _Task_status(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.(model.TaskStatus)
 	fc.Result = res
-	return ec.marshalNTaskStatus2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskStatus(ctx, field.Selections, res)
+	return ec.marshalNTaskStatus2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Task_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2310,7 +2398,7 @@ func (ec *executionContext) _Task_events(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.([]*model.Event)
 	fc.Result = res
-	return ec.marshalOEvent2ᚕᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐEventᚄ(ctx, field.Selections, res)
+	return ec.marshalOEvent2ᚕᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐEventᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Task_events(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2535,7 +2623,7 @@ func (ec *executionContext) _User_runningTask(ctx context.Context, field graphql
 	}
 	res := resTmp.(*model.Task)
 	fc.Result = res
-	return ec.marshalOTask2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTask(ctx, field.Selections, res)
+	return ec.marshalOTask2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTask(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_runningTask(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4526,7 +4614,7 @@ func (ec *executionContext) unmarshalInputQueryTaskInput(ctx context.Context, ob
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
-			data, err := ec.unmarshalOTaskStatus2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskStatus(ctx, v)
+			data, err := ec.unmarshalOTaskStatus2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskStatus(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4620,22 +4708,13 @@ func (ec *executionContext) unmarshalInputTaskUpdateInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"taskId", "name", "description", "dueDate", "status"}
+	fieldsInOrder := [...]string{"name", "description", "dueDate", "status"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "taskId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("taskId"))
-			data, err := ec.unmarshalNID2int64(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.TaskID = data
 		case "name":
 			var err error
 
@@ -4667,7 +4746,7 @@ func (ec *executionContext) unmarshalInputTaskUpdateInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
-			data, err := ec.unmarshalOTaskStatus2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskStatus(ctx, v)
+			data, err := ec.unmarshalOTaskStatus2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskStatus(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -5028,6 +5107,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_me(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "publicUser":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_publicUser(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -5570,11 +5672,11 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNAuthPayload2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐAuthPayload(ctx context.Context, sel ast.SelectionSet, v model.AuthPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNAuthPayload2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐAuthPayload(ctx context.Context, sel ast.SelectionSet, v model.AuthPayload) graphql.Marshaler {
 	return ec._AuthPayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAuthPayload2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐAuthPayload(ctx context.Context, sel ast.SelectionSet, v *model.AuthPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNAuthPayload2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐAuthPayload(ctx context.Context, sel ast.SelectionSet, v *model.AuthPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5599,7 +5701,7 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNEvent2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐEvent(ctx context.Context, sel ast.SelectionSet, v *model.Event) graphql.Marshaler {
+func (ec *executionContext) marshalNEvent2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐEvent(ctx context.Context, sel ast.SelectionSet, v *model.Event) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5624,21 +5726,21 @@ func (ec *executionContext) marshalNID2int64(ctx context.Context, sel ast.Select
 	return res
 }
 
-func (ec *executionContext) unmarshalNLoginInput2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐLoginInput(ctx context.Context, v interface{}) (model.LoginInput, error) {
+func (ec *executionContext) unmarshalNLoginInput2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐLoginInput(ctx context.Context, v interface{}) (model.LoginInput, error) {
 	res, err := ec.unmarshalInputLoginInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNQueryTaskInput2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐQueryTaskInput(ctx context.Context, v interface{}) (model.QueryTaskInput, error) {
+func (ec *executionContext) unmarshalNQueryTaskInput2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐQueryTaskInput(ctx context.Context, v interface{}) (model.QueryTaskInput, error) {
 	res, err := ec.unmarshalInputQueryTaskInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNQueryUserTaskResult2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐQueryUserTaskResult(ctx context.Context, sel ast.SelectionSet, v model.QueryUserTaskResult) graphql.Marshaler {
+func (ec *executionContext) marshalNQueryUserTaskResult2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐQueryUserTaskResult(ctx context.Context, sel ast.SelectionSet, v model.QueryUserTaskResult) graphql.Marshaler {
 	return ec._QueryUserTaskResult(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNQueryUserTaskResult2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐQueryUserTaskResult(ctx context.Context, sel ast.SelectionSet, v *model.QueryUserTaskResult) graphql.Marshaler {
+func (ec *executionContext) marshalNQueryUserTaskResult2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐQueryUserTaskResult(ctx context.Context, sel ast.SelectionSet, v *model.QueryUserTaskResult) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5648,7 +5750,7 @@ func (ec *executionContext) marshalNQueryUserTaskResult2ᚖgithubᚗcomᚋflyfy1
 	return ec._QueryUserTaskResult(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNQueryUserTasksInput2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐQueryUserTasksInput(ctx context.Context, v interface{}) (model.QueryUserTasksInput, error) {
+func (ec *executionContext) unmarshalNQueryUserTasksInput2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐQueryUserTasksInput(ctx context.Context, v interface{}) (model.QueryUserTasksInput, error) {
 	res, err := ec.unmarshalInputQueryUserTasksInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -5700,11 +5802,11 @@ func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel
 	return ret
 }
 
-func (ec *executionContext) marshalNTask2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTask(ctx context.Context, sel ast.SelectionSet, v model.Task) graphql.Marshaler {
+func (ec *executionContext) marshalNTask2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTask(ctx context.Context, sel ast.SelectionSet, v model.Task) graphql.Marshaler {
 	return ec._Task(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNTask2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTask(ctx context.Context, sel ast.SelectionSet, v *model.Task) graphql.Marshaler {
+func (ec *executionContext) marshalNTask2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTask(ctx context.Context, sel ast.SelectionSet, v *model.Task) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5714,22 +5816,22 @@ func (ec *executionContext) marshalNTask2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgr
 	return ec._Task(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNTaskCreateInput2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskCreateInput(ctx context.Context, v interface{}) (model.TaskCreateInput, error) {
+func (ec *executionContext) unmarshalNTaskCreateInput2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskCreateInput(ctx context.Context, v interface{}) (model.TaskCreateInput, error) {
 	res, err := ec.unmarshalInputTaskCreateInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNTaskStatus2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, v interface{}) (model.TaskStatus, error) {
+func (ec *executionContext) unmarshalNTaskStatus2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, v interface{}) (model.TaskStatus, error) {
 	var res model.TaskStatus
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNTaskStatus2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, sel ast.SelectionSet, v model.TaskStatus) graphql.Marshaler {
+func (ec *executionContext) marshalNTaskStatus2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, sel ast.SelectionSet, v model.TaskStatus) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) unmarshalNTaskUpdateInput2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskUpdateInput(ctx context.Context, v interface{}) (model.TaskUpdateInput, error) {
+func (ec *executionContext) unmarshalNTaskUpdateInput2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskUpdateInput(ctx context.Context, v interface{}) (model.TaskUpdateInput, error) {
 	res, err := ec.unmarshalInputTaskUpdateInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -5749,11 +5851,11 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalNUser2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5763,7 +5865,11 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgr
 	return ec._User(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNUserPublic2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐUserPublic(ctx context.Context, sel ast.SelectionSet, v *model.UserPublic) graphql.Marshaler {
+func (ec *executionContext) marshalNUserPublic2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐUserPublic(ctx context.Context, sel ast.SelectionSet, v model.UserPublic) graphql.Marshaler {
+	return ec._UserPublic(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUserPublic2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐUserPublic(ctx context.Context, sel ast.SelectionSet, v *model.UserPublic) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5773,7 +5879,7 @@ func (ec *executionContext) marshalNUserPublic2ᚖgithubᚗcomᚋflyfy1ᚋdiarie
 	return ec._UserPublic(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUserUpdateInput2githubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐUserUpdateInput(ctx context.Context, v interface{}) (model.UserUpdateInput, error) {
+func (ec *executionContext) unmarshalNUserUpdateInput2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐUserUpdateInput(ctx context.Context, v interface{}) (model.UserUpdateInput, error) {
 	res, err := ec.unmarshalInputUserUpdateInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -6057,7 +6163,7 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) marshalOEvent2ᚕᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐEventᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Event) graphql.Marshaler {
+func (ec *executionContext) marshalOEvent2ᚕᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐEventᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Event) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -6084,7 +6190,7 @@ func (ec *executionContext) marshalOEvent2ᚕᚖgithubᚗcomᚋflyfy1ᚋdiarier�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNEvent2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐEvent(ctx, sel, v[i])
+			ret[i] = ec.marshalNEvent2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐEvent(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6120,7 +6226,7 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalOTask2ᚕᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Task) graphql.Marshaler {
+func (ec *executionContext) marshalOTask2ᚕᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Task) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -6147,7 +6253,7 @@ func (ec *executionContext) marshalOTask2ᚕᚖgithubᚗcomᚋflyfy1ᚋdiarier�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNTask2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTask(ctx, sel, v[i])
+			ret[i] = ec.marshalNTask2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTask(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6167,14 +6273,14 @@ func (ec *executionContext) marshalOTask2ᚕᚖgithubᚗcomᚋflyfy1ᚋdiarier�
 	return ret
 }
 
-func (ec *executionContext) marshalOTask2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTask(ctx context.Context, sel ast.SelectionSet, v *model.Task) graphql.Marshaler {
+func (ec *executionContext) marshalOTask2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTask(ctx context.Context, sel ast.SelectionSet, v *model.Task) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Task(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOTaskStatus2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, v interface{}) (*model.TaskStatus, error) {
+func (ec *executionContext) unmarshalOTaskStatus2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, v interface{}) (*model.TaskStatus, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -6183,7 +6289,7 @@ func (ec *executionContext) unmarshalOTaskStatus2ᚖgithubᚗcomᚋflyfy1ᚋdiar
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOTaskStatus2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, sel ast.SelectionSet, v *model.TaskStatus) graphql.Marshaler {
+func (ec *executionContext) marshalOTaskStatus2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, sel ast.SelectionSet, v *model.TaskStatus) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -6206,7 +6312,7 @@ func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel
 	return res
 }
 
-func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋflyfy1ᚋdiarierᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

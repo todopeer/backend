@@ -34,8 +34,6 @@ input TaskCreateInput {
 }
 
 input TaskUpdateInput {
-	taskId: ID!
-
 	name: String
 	description: String
 	dueDate: Time
@@ -66,7 +64,7 @@ extend type Query {
 
 extend type Mutation {
 	taskCreate(input: TaskCreateInput!): Task! @auth
-	taskUpdate(input: TaskUpdateInput!): Task! @auth
+	taskUpdate(id: ID!, input: TaskUpdateInput!): Task! @auth
 	taskRemove(id: ID!): Task! @auth
 	taskStart(id: ID!): Task! @auth
 }
