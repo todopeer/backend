@@ -134,9 +134,19 @@ func (t *TaskORM) GetTaskByID(id int64) (*Task, error) {
 
 type QueryTaskOptionFunc func(db *gorm.DB) *gorm.DB
 
-func GetTasksWithStatus(status int) QueryTaskOptionFunc {
+func GetTasksWithStatus(statuses []int) QueryTaskOptionFunc {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Where("status = ?", status)
+		return db.Where("status IN (?)", statuses)
+	}
+}
+
+func GetTasksWithOrder(field string, dir *string) QueryTaskOptionFunc {
+	return func(db *gorm.DB) *gorm.DB {
+		query := field
+		if dir != nil {
+			query += " " + *dir
+		}
+		return db.Order(query, true)
 	}
 }
 

@@ -106,8 +106,13 @@ func (r *queryResolver) Tasks(ctx context.Context, input model.QueryTaskInput) (
 	user := auth.UserFromContext(ctx)
 
 	var options []orm.QueryTaskOptionFunc
-	if input.Status != nil {
-		options = append(options, orm.GetTasksWithStatus(model.TaskStatusToInt(*input.Status)))
+	if len(input.Status) > 0 {
+		statuses := util.Map(input.Status, model.TaskStatusToInt)
+		options = append(options, orm.GetTasksWithStatus(statuses))
+	}
+
+	if input.OrderBy != nil {
+		options = append(options, orm.GetTasksWithOrder(string(input.OrderBy.Field), (*string)(input.OrderBy.Direction)))
 	}
 
 	dbTasks, err := r.taskOrm.GetTasksByUserID(user.ID, options...)
