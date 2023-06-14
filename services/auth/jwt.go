@@ -12,8 +12,13 @@ import (
 
 var (
 	// TODO: replace this key with ENV variable
-	jwtKey = []byte("top-secret-key") // Use a strong secret key for your JWT tokens
+	jwtKey = []byte("to-be-replaced")
 )
+
+// SetJWTKey would be called during setup
+func SetJWTKey(key string) {
+	jwtKey = []byte(key)
+}
 
 const (
 	jwtExpireDuration = 72 * time.Hour // Tokens will expire after 72 hours

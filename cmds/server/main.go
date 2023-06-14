@@ -21,9 +21,16 @@ import (
 const defaultPort = "8081"
 
 func main() {
+	// setups
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
+	}
+
+	secret := os.Getenv("APP_SECRET")
+	if len(secret) > 0 {
+		auth.SetJWTKey(secret)
 	}
 
 	db, err := gorm.Open("sqlite3", orm.DBPATH)
