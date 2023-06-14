@@ -7,13 +7,12 @@ package resolver
 import (
 	"context"
 	"errors"
-	"log"
 
+	"github.com/Shopify/hoff"
 	"github.com/jinzhu/gorm"
 	"github.com/todopeer/backend/graph/model"
 	"github.com/todopeer/backend/orm"
 	"github.com/todopeer/backend/services/auth"
-	"github.com/todopeer/backend/util"
 )
 
 // TaskCreate is the resolver for the taskCreate field.
@@ -33,7 +32,7 @@ func (r *mutationResolver) TaskCreate(ctx context.Context, input model.TaskCreat
 		return nil, err
 	}
 
-	return model.ConvertToGraphTaskModel(dbTask)
+	return model.ConvertToGqlTaskModel(dbTask), nil
 }
 
 // TaskUpdate is the resolver for the taskUpdate field.
@@ -53,7 +52,7 @@ func (r *mutationResolver) TaskUpdate(ctx context.Context, id int64, input model
 		return nil, err
 	}
 
-	return model.ConvertToGraphTaskModel(task)
+	return model.ConvertToGqlTaskModel(task), nil
 }
 
 // TaskRemove is the resolver for the taskRemove field.
@@ -76,7 +75,7 @@ func (r *mutationResolver) TaskRemove(ctx context.Context, id int64) (*model.Tas
 		return nil, err
 	}
 
-	return model.ConvertToGraphTaskModel(task)
+	return model.ConvertToGqlTaskModel(task), nil
 }
 
 // Tasks is the resolver for the tasks field.
@@ -85,7 +84,7 @@ func (r *queryResolver) Tasks(ctx context.Context, input model.QueryTaskInput) (
 
 	var options []orm.QueryTaskOptionFunc
 	if len(input.Status) > 0 {
-		statuses := util.Map(input.Status, model.TaskStatusToInt)
+		statuses := hoff.Map(input.Status, model.TaskStatusToInt)
 		options = append(options, orm.GetTasksWithStatus(statuses))
 	}
 
@@ -100,10 +99,7 @@ func (r *queryResolver) Tasks(ctx context.Context, input model.QueryTaskInput) (
 
 	var tasks []*model.Task
 	for _, dbTask := range dbTasks {
-		task, err := model.ConvertToGraphTaskModel(dbTask)
-		if err != nil {
-			return nil, err
-		}
+		task := model.ConvertToGqlTaskModel(dbTask)
 		tasks = append(tasks, task)
 	}
 
@@ -122,25 +118,40 @@ func (r *queryResolver) UserTasks(ctx context.Context, username string) (*model.
 	if err != nil {
 		return nil, err
 	}
-	taskResp, err := util.MapWithError(tasks, model.ConvertToGraphTaskModel)
-	if err != nil {
-		return nil, err
-	}
+	taskResp := hoff.Map(tasks, model.ConvertToGqlTaskModel)
 
 	res := &model.QueryUserTaskResult{
-		User:  model.ConvertToGraphPublicUserModel(user, r.taskOrm),
+		User:  model.ConvertToGqlPublicUserModel(user, r.taskOrm),
 		Tasks: taskResp,
 	}
 
 	if user.RunningTaskID != nil {
-		idx := util.FindBy(taskResp, func(t *model.Task) bool {
+		runningTasks := hoff.Filter(taskResp, func(t *model.Task) bool {
 			return t.ID == *user.RunningTaskID
 		})
-		if idx >= 0 {
-			res.Doing = taskResp[idx]
-		} else {
-			log.Printf("RunningTaskID(=%d) exist but not in this user's task list", *user.RunningTaskID)
+		if len(runningTasks) > 0 {
+			res.Doing = taskResp[0]
 		}
 	}
 	return res, nil
+}
+
+// Task is the resolver for the task field.
+func (r *queryResolver) Task(ctx context.Context, id int64) (*model.TaskDetail, error) {
+	user := auth.UserFromContext(ctx)
+	task, err := r.taskOrm.GetTaskByID(id)
+	if err != nil {
+		return nil, err
+	}
+	if task == nil {
+		return nil, errors.New("not found")
+	}
+
+	if user.ID != *task.UserID {
+		// TODO: make this error common
+		return nil, errors.New("unauthorized")
+	}
+
+	taskInGQL := model.ConvertToGqlTaskModel(task)
+	return model.BuildGqlTaskDetail(taskInGQL, r.eventOrm)
 }

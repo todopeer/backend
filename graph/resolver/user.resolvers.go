@@ -38,7 +38,7 @@ func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*
 	}
 
 	// Convert the User ORM model to a GraphQL model before returning
-	graphUser := model.ConvertToGraphUserModel(user, r.taskOrm)
+	graphUser := model.ConvertToGqlUserModel(user, r.taskOrm)
 	// if err != nil {
 	// 	return nil, fmt.Errorf("convertion error")
 	// }
@@ -97,14 +97,14 @@ func (r *mutationResolver) UserUpdate(ctx context.Context, input model.UserUpdat
 	}
 
 	err := r.userORM.UpdateUser(user)
-	return model.ConvertToGraphUserModel(user, r.taskOrm), err
+	return model.ConvertToGqlUserModel(user, r.taskOrm), err
 }
 
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 	// Get user info from context. The actual implementation depends on how you handle authentication.
 	user := auth.UserFromContext(ctx)
-	return model.ConvertToGraphUserModel(user, r.taskOrm), nil
+	return model.ConvertToGqlUserModel(user, r.taskOrm), nil
 }
 
 // RunningTask is the resolver for the runningTask field.
@@ -122,7 +122,7 @@ func (r *userResolver) RunningTask(ctx context.Context, obj *model.User) (*model
 		return nil, err
 	}
 
-	tt, err := model.ConvertToGraphTaskModel(t)
+	tt := model.ConvertToGqlTaskModel(t)
 	if err != nil {
 		return nil, err
 	}

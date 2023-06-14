@@ -4,7 +4,7 @@ import (
 	"github.com/todopeer/backend/orm"
 )
 
-func ConvertToGraphPublicUserModel(user *orm.User, taskOrm *orm.TaskORM) *UserPublic {
+func ConvertToGqlPublicUserModel(user *orm.User, taskOrm *orm.TaskORM) *UserPublic {
 	return &UserPublic{
 		ID:            user.ID,
 		Username:      user.Username,
@@ -13,7 +13,7 @@ func ConvertToGraphPublicUserModel(user *orm.User, taskOrm *orm.TaskORM) *UserPu
 	}
 }
 
-func ConvertToGraphUserModel(user *orm.User, taskOrm *orm.TaskORM) *User {
+func ConvertToGqlUserModel(user *orm.User, taskOrm *orm.TaskORM) *User {
 	eu := NewUser(taskOrm)
 	eu.ID = user.ID
 	eu.Email = user.Email
@@ -24,7 +24,7 @@ func ConvertToGraphUserModel(user *orm.User, taskOrm *orm.TaskORM) *User {
 	return eu
 }
 
-func ConvertToGraphTaskModel(task *orm.Task) (*Task, error) {
+func ConvertToGqlTaskModel(task *orm.Task) *Task {
 	status := AllTaskStatus[*task.Status]
 
 	return &Task{
@@ -35,5 +35,13 @@ func ConvertToGraphTaskModel(task *orm.Task) (*Task, error) {
 		DueDate:     task.DueDate,
 		CreatedAt:   *task.CreatedAt,
 		UpdatedAt:   *task.UpdatedAt,
-	}, nil
+	}
+}
+
+func ConvertToGraphqlEvent(e *orm.Event) *Event {
+	return &Event{
+		ID:      e.ID,
+		StartAt: *e.StartAt,
+		EndAt:   e.EndAt,
+	}
 }

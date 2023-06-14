@@ -16,16 +16,18 @@ type Task {
 	updatedAt: Time!
 
 	dueDate: Time
+}
+
+type TaskDetail {
+	task: Task!
 	events: [Event!]
 }
 
 type Event {
 	id: ID!
-	task: Task!
-	timing: [String!]!
-	fullPomo: Boolean!
-	timeCreated: Time!
-	timeUpdated: Time!
+	taskID: ID!
+	startAt: Time!
+	endAt: Time
 }
 
 input TaskCreateInput {
@@ -76,6 +78,7 @@ type QueryUserTaskResult {
 extend type Query {
 	# events(QueryEventInput!): [Event!] @auth
 	tasks(input: QueryTaskInput!): [Task!] @auth
+	task(id: ID!): TaskDetail! @auth
 
 	# to view someone's task (of your interest)
 	userTasks(username: String!): QueryUserTaskResult!

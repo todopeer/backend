@@ -15,12 +15,10 @@ type AuthPayload struct {
 }
 
 type Event struct {
-	ID          int64     `json:"id"`
-	Task        *Task     `json:"task"`
-	Timing      []string  `json:"timing"`
-	FullPomo    bool      `json:"fullPomo"`
-	TimeCreated time.Time `json:"timeCreated"`
-	TimeUpdated time.Time `json:"timeUpdated"`
+	ID      int64      `json:"id"`
+	TaskID  int64      `json:"taskID"`
+	StartAt time.Time  `json:"startAt"`
+	EndAt   *time.Time `json:"endAt,omitempty"`
 }
 
 type LoginInput struct {
@@ -56,13 +54,17 @@ type Task struct {
 	CreatedAt   time.Time  `json:"createdAt"`
 	UpdatedAt   time.Time  `json:"updatedAt"`
 	DueDate     *time.Time `json:"dueDate,omitempty"`
-	Events      []*Event   `json:"events,omitempty"`
 }
 
 type TaskCreateInput struct {
 	Name        string     `json:"name"`
 	Description *string    `json:"description,omitempty"`
 	DueDate     *time.Time `json:"dueDate,omitempty"`
+}
+
+type TaskDetail struct {
+	Task   *Task    `json:"task"`
+	Events []*Event `json:"events,omitempty"`
 }
 
 type TaskUpdateInput struct {
