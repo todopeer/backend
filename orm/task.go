@@ -131,7 +131,7 @@ func (t *TaskORM) UpdateTask(current, changes *Task, user *User) error {
 				}
 			} else {
 				if runningTaskID != nil && *runningTaskID == current.ID {
-					if err := tx.Model(user).Update("running_task_id", current.ID).Error; err != nil {
+					if err := tx.Model(user).Update("running_task_id", nil).Error; err != nil {
 						return err
 					}
 
