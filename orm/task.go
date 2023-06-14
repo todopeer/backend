@@ -7,10 +7,10 @@ import (
 )
 
 const (
-	TaskStatusNotStarted = 0
-	TaskStatusDoing      = 1
-	TaskStatusDone       = 2
-	TaskStatusPaused     = 3
+	TaskStatusNotStarted = iota
+	TaskStatusDoing
+	TaskStatusDone
+	TaskStatusPaused
 )
 
 type Task struct {
