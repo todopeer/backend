@@ -10,7 +10,7 @@ type User {
 	# if provided, would make your todo public
 	username: String
 
-	runningTask: Task
+	runningTaskID: ID
 }
 
 input LoginInput {
@@ -44,4 +44,5 @@ type UserPublic {
 	id: ID!
 	username: String
 	name: String
+	runningTaskID: ID
 }

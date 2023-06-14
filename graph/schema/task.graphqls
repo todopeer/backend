@@ -14,7 +14,7 @@ type Task {
 	status: TaskStatus!
 	createdAt: Time!
 	updatedAt: Time!
-	completedAt: Time
+
 	dueDate: Time
 	events: [Event!]
 }
@@ -85,5 +85,4 @@ extend type Mutation {
 	taskCreate(input: TaskCreateInput!): Task! @auth
 	taskUpdate(id: ID!, input: TaskUpdateInput!): Task! @auth
 	taskRemove(id: ID!): Task! @auth
-	taskStart(id: ID!): Task! @auth
 }

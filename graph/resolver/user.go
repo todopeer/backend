@@ -11,18 +11,20 @@ func generateToken(user *orm.User) (string, error) {
 }
 func convertToGraphPublicUserModel(user *orm.User) *model.UserPublic {
 	return &model.UserPublic{
-		ID:       user.ID,
-		Username: user.Username,
-		Name:     user.Name,
+		ID:            user.ID,
+		Username:      user.Username,
+		Name:          user.Name,
+		RunningTaskID: user.RunningTaskID,
 	}
 }
 func convertToGraphUserModel(user *orm.User) *model.User {
 	// // TODO: lazy load the Task field instead
 	return &model.User{
-		ID:       user.ID,
-		Email:    user.Email,
-		Username: user.Username,
-		Name:     user.Name,
+		ID:            user.ID,
+		Email:         user.Email,
+		Username:      user.Username,
+		Name:          user.Name,
+		RunningTaskID: user.RunningTaskID,
 	}
 }
 

@@ -79,28 +79,6 @@ func (r *mutationResolver) TaskRemove(ctx context.Context, id int64) (*model.Tas
 	return convertToGraphTaskModel(task)
 }
 
-// TaskStart starts the given task, by: 1. set user.on to be that task; 2. set task status to be doing
-func (r *mutationResolver) TaskStart(ctx context.Context, id int64) (*model.Task, error) {
-	user := auth.UserFromContext(ctx)
-	task, err := r.taskOrm.GetTaskByID(id)
-	if err != nil {
-		return nil, err
-	}
-	if task == nil {
-		return nil, gorm.ErrRecordNotFound
-	}
-
-	if *task.UserID != user.ID {
-		return nil, errors.New("not authorized to update this task")
-	}
-
-	err = r.userORM.SetRunningTask(ctx, user, task)
-	if err != nil {
-		return nil, err
-	}
-	return convertToGraphTaskModel(task)
-}
-
 // Tasks is the resolver for the tasks field.
 func (r *queryResolver) Tasks(ctx context.Context, input model.QueryTaskInput) ([]*model.Task, error) {
 	user := auth.UserFromContext(ctx)
@@ -161,7 +139,7 @@ func (r *queryResolver) UserTasks(ctx context.Context, username string) (*model.
 		if idx >= 0 {
 			res.Doing = taskResp[idx]
 		} else {
-			log.Println("RunningTaskID(=%d) exist but not in this user's task list", *user.RunningTaskID)
+			log.Printf("RunningTaskID(=%d) exist but not in this user's task list", *user.RunningTaskID)
 		}
 	}
 	return res, nil

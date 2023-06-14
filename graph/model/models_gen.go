@@ -55,7 +55,6 @@ type Task struct {
 	Status      TaskStatus `json:"status"`
 	CreatedAt   time.Time  `json:"createdAt"`
 	UpdatedAt   time.Time  `json:"updatedAt"`
-	CompletedAt *time.Time `json:"completedAt,omitempty"`
 	DueDate     *time.Time `json:"dueDate,omitempty"`
 	Events      []*Event   `json:"events,omitempty"`
 }
@@ -74,9 +73,10 @@ type TaskUpdateInput struct {
 }
 
 type UserPublic struct {
-	ID       int64   `json:"id"`
-	Username *string `json:"username,omitempty"`
-	Name     *string `json:"name,omitempty"`
+	ID            int64   `json:"id"`
+	Username      *string `json:"username,omitempty"`
+	Name          *string `json:"name,omitempty"`
+	RunningTaskID *int64  `json:"runningTaskID,omitempty"`
 }
 
 type UserUpdateInput struct {

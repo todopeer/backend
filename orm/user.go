@@ -2,7 +2,6 @@ package orm
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -80,6 +79,7 @@ func (t *UserORM) GetUserByID(userID int64) (*User, error) {
 	return user, nil
 }
 
+/*
 func (o *UserORM) SetRunningTask(ctx context.Context, user *User, t *Task) error {
 	if user.RunningTaskID != nil && *user.RunningTaskID == t.ID {
 		// already running this task
@@ -127,6 +127,7 @@ func (o *UserORM) SetRunningTask(ctx context.Context, user *User, t *Task) error
 		return tx.Create(event).Error
 	})
 }
+*/
 
 func (o *UserORM) GetUserByUsername(ctx context.Context, username string) (*User, error) {
 	res := &User{}

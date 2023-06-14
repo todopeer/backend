@@ -31,6 +31,5 @@ func convertToGraphTaskModel(task *orm.Task) (*model.Task, error) {
 		Events:      events,
 		CreatedAt:   *task.CreatedAt,
 		UpdatedAt:   *task.UpdatedAt,
-		CompletedAt: task.CompletedAt,
 	}, nil
 }
