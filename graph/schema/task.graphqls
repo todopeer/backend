@@ -4,6 +4,7 @@ enum TaskStatus {
   NOT_STARTED
   DOING
   DONE
+  PAUSED
 }
 
 type Task {

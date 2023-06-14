@@ -10,6 +10,7 @@ const (
 	TaskStatusNotStarted = 0
 	TaskStatusDoing      = 1
 	TaskStatusDone       = 2
+	TaskStatusPaused     = 3
 )
 
 type Task struct {

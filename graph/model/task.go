@@ -6,8 +6,9 @@ import (
 
 var m = map[TaskStatus]int{
 	TaskStatusNotStarted: orm.TaskStatusNotStarted,
-	TaskStatusDoing: orm.TaskStatusDoing,
-	TaskStatusDone: orm.TaskStatusDone,
+	TaskStatusDoing:      orm.TaskStatusDoing,
+	TaskStatusDone:       orm.TaskStatusDone,
+	TaskStatusPaused:     orm.TaskStatusPaused,
 }
 
 func TaskStatusToInt(status TaskStatus) int {

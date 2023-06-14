@@ -177,17 +177,19 @@ const (
 	TaskStatusNotStarted TaskStatus = "NOT_STARTED"
 	TaskStatusDoing      TaskStatus = "DOING"
 	TaskStatusDone       TaskStatus = "DONE"
+	TaskStatusPaused     TaskStatus = "PAUSED"
 )
 
 var AllTaskStatus = []TaskStatus{
 	TaskStatusNotStarted,
 	TaskStatusDoing,
 	TaskStatusDone,
+	TaskStatusPaused,
 }
 
 func (e TaskStatus) IsValid() bool {
 	switch e {
-	case TaskStatusNotStarted, TaskStatusDoing, TaskStatusDone:
+	case TaskStatusNotStarted, TaskStatusDoing, TaskStatusDone, TaskStatusPaused:
 		return true
 	}
 	return false
