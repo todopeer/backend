@@ -10,6 +10,7 @@ import (
 
 	"github.com/Shopify/hoff"
 	"github.com/jinzhu/gorm"
+	"github.com/todopeer/backend/graph"
 	"github.com/todopeer/backend/graph/model"
 	"github.com/todopeer/backend/orm"
 	"github.com/todopeer/backend/services/auth"
@@ -106,6 +107,26 @@ func (r *queryResolver) Tasks(ctx context.Context, input model.QueryTaskInput) (
 	return tasks, nil
 }
 
+// Task is the resolver for the task field.
+func (r *queryResolver) Task(ctx context.Context, id int64) (*model.Task, error) {
+	user := auth.UserFromContext(ctx)
+	task, err := r.taskOrm.GetTaskByID(id)
+	if err != nil {
+		return nil, err
+	}
+	if task == nil {
+		return nil, errors.New("not found")
+	}
+
+	if user.ID != *task.UserID {
+		// TODO: make this error common
+		return nil, errors.New("unauthorized")
+	}
+
+	taskInGQL := model.ConvertToGqlTaskModel(task)
+	return taskInGQL, nil
+}
+
 // UserTasks is the resolver for the userTasks field.
 func (r *queryResolver) UserTasks(ctx context.Context, username string) (*model.QueryUserTaskResult, error) {
 	user, err := r.userORM.GetUserByUsername(ctx, username)
@@ -136,22 +157,25 @@ func (r *queryResolver) UserTasks(ctx context.Context, username string) (*model.
 	return res, nil
 }
 
-// Task is the resolver for the task field.
-func (r *queryResolver) Task(ctx context.Context, id int64) (*model.TaskDetail, error) {
-	user := auth.UserFromContext(ctx)
-	task, err := r.taskOrm.GetTaskByID(id)
+// Events is the resolver for the events field.
+func (r *taskResolver) Events(ctx context.Context, obj *model.Task, input *model.EventQueryInput) ([]*model.Event, error) {
+	var options []orm.EventOptionFunc
+	if input != nil {
+		if input.Limit != nil {
+			options = append(options, orm.EventQueryOptionWithLimit(int(*input.Limit)))
+		}
+		if input.OrderAsc != nil {
+			options = append(options, orm.EventQueryOptionWithOrderAsc(*input.OrderAsc))
+		}
+	}
+	events, err := r.eventOrm.GetEventsByTaskID(obj.ID, options...)
 	if err != nil {
 		return nil, err
 	}
-	if task == nil {
-		return nil, errors.New("not found")
-	}
-
-	if user.ID != *task.UserID {
-		// TODO: make this error common
-		return nil, errors.New("unauthorized")
-	}
-
-	taskInGQL := model.ConvertToGqlTaskModel(task)
-	return model.BuildGqlTaskDetail(taskInGQL, r.eventOrm)
+	return hoff.Map(events, model.ConvertToGraphqlEvent), nil
 }
+
+// Task returns graph.TaskResolver implementation.
+func (r *Resolver) Task() graph.TaskResolver { return &taskResolver{r} }
+
+type taskResolver struct{ *Resolver }

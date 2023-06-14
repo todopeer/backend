@@ -16,11 +16,12 @@ type Task {
 	updatedAt: Time!
 
 	dueDate: Time
+	events(input: EventQueryInput): [Event!] @goField(forceResolver: true)
 }
 
-type TaskDetail {
-	task: Task!
-	events: [Event!]
+input EventQueryInput {
+	limit: Int
+	orderAsc: Boolean
 }
 
 type Event {
@@ -78,7 +79,7 @@ type QueryUserTaskResult {
 extend type Query {
 	# events(QueryEventInput!): [Event!] @auth
 	tasks(input: QueryTaskInput!): [Task!] @auth
-	task(id: ID!): TaskDetail! @auth
+	task(id: ID!): Task! @auth
 
 	# to view someone's task (of your interest)
 	userTasks(username: String!): QueryUserTaskResult!

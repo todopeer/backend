@@ -21,6 +21,11 @@ type Event struct {
 	EndAt   *time.Time `json:"endAt,omitempty"`
 }
 
+type EventQueryInput struct {
+	Limit    *int32 `json:"limit,omitempty"`
+	OrderAsc *bool  `json:"orderAsc,omitempty"`
+}
+
 type LoginInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -54,17 +59,13 @@ type Task struct {
 	CreatedAt   time.Time  `json:"createdAt"`
 	UpdatedAt   time.Time  `json:"updatedAt"`
 	DueDate     *time.Time `json:"dueDate,omitempty"`
+	Events      []*Event   `json:"events,omitempty"`
 }
 
 type TaskCreateInput struct {
 	Name        string     `json:"name"`
 	Description *string    `json:"description,omitempty"`
 	DueDate     *time.Time `json:"dueDate,omitempty"`
-}
-
-type TaskDetail struct {
-	Task   *Task    `json:"task"`
-	Events []*Event `json:"events,omitempty"`
 }
 
 type TaskUpdateInput struct {

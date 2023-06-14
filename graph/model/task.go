@@ -1,7 +1,6 @@
 package model
 
 import (
-	"github.com/Shopify/hoff"
 	"github.com/todopeer/backend/orm"
 )
 
@@ -28,20 +27,4 @@ func (input *TaskUpdateInput) ChangesAsTask() *orm.Task {
 	}
 
 	return res
-}
-
-func BuildGqlTaskDetail(task *Task, eventOrm *orm.EventOrm) (*TaskDetail, error) {
-	if task == nil {
-		return nil, nil
-	}
-
-	events, err := eventOrm.GetEventsByTaskID(task.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	return &TaskDetail{
-		Task:   task,
-		Events: hoff.Map(events, ConvertToGraphqlEvent),
-	}, nil
 }
