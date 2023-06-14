@@ -33,7 +33,7 @@ func (r *mutationResolver) TaskCreate(ctx context.Context, input model.TaskCreat
 		return nil, err
 	}
 
-	return convertToGraphTaskModel(dbTask)
+	return model.ConvertToGraphTaskModel(dbTask)
 }
 
 // TaskUpdate is the resolver for the taskUpdate field.
@@ -53,7 +53,7 @@ func (r *mutationResolver) TaskUpdate(ctx context.Context, id int64, input model
 		return nil, err
 	}
 
-	return convertToGraphTaskModel(task)
+	return model.ConvertToGraphTaskModel(task)
 }
 
 // TaskRemove is the resolver for the taskRemove field.
@@ -76,7 +76,7 @@ func (r *mutationResolver) TaskRemove(ctx context.Context, id int64) (*model.Tas
 		return nil, err
 	}
 
-	return convertToGraphTaskModel(task)
+	return model.ConvertToGraphTaskModel(task)
 }
 
 // Tasks is the resolver for the tasks field.
@@ -100,7 +100,7 @@ func (r *queryResolver) Tasks(ctx context.Context, input model.QueryTaskInput) (
 
 	var tasks []*model.Task
 	for _, dbTask := range dbTasks {
-		task, err := convertToGraphTaskModel(dbTask)
+		task, err := model.ConvertToGraphTaskModel(dbTask)
 		if err != nil {
 			return nil, err
 		}
@@ -122,13 +122,13 @@ func (r *queryResolver) UserTasks(ctx context.Context, username string) (*model.
 	if err != nil {
 		return nil, err
 	}
-	taskResp, err := util.MapWithError(tasks, convertToGraphTaskModel)
+	taskResp, err := util.MapWithError(tasks, model.ConvertToGraphTaskModel)
 	if err != nil {
 		return nil, err
 	}
 
 	res := &model.QueryUserTaskResult{
-		User:  convertToGraphPublicUserModel(user),
+		User:  model.ConvertToGraphPublicUserModel(user, r.taskOrm),
 		Tasks: taskResp,
 	}
 

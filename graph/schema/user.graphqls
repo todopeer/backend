@@ -11,6 +11,8 @@ type User {
 	username: String
 
 	runningTaskID: ID
+
+	runningTask: Task
 }
 
 input LoginInput {
