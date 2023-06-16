@@ -38,10 +38,12 @@ func ConvertToGqlTaskModel(task *orm.Task) *Task {
 	}
 }
 
-func ConvertToGraphqlEvent(e *orm.Event) *Event {
+func ConvertToGqlEventModel(e *orm.Event) *Event {
 	return &Event{
-		ID:      e.ID,
-		StartAt: *e.StartAt,
-		EndAt:   e.EndAt,
+		ID:          e.ID,
+		StartAt:     *e.StartAt,
+		EndAt:       e.EndAt,
+		TaskID:      *e.TaskID,
+		Description: e.Description,
 	}
 }

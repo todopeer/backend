@@ -1,0 +1,21 @@
+type Event {
+	id: ID!
+	taskID: ID!
+
+	startAt: Time!
+	endAt: Time
+
+    description: String
+}
+
+type QueryEventsResult {
+    # list of tasks for all events occurred
+    tasks: [Task!]!
+
+    # list of events on given day
+    events: [Event!]!
+}
+
+extend type Query {
+	events(day: Date!): QueryEventsResult! @auth
+}

@@ -15,20 +15,21 @@ type AuthPayload struct {
 }
 
 type Event struct {
-	ID      int64      `json:"id"`
-	TaskID  int64      `json:"taskID"`
-	StartAt time.Time  `json:"startAt"`
-	EndAt   *time.Time `json:"endAt,omitempty"`
-}
-
-type EventQueryInput struct {
-	Limit    *int32 `json:"limit,omitempty"`
-	OrderAsc *bool  `json:"orderAsc,omitempty"`
+	ID          int64      `json:"id"`
+	TaskID      int64      `json:"taskID"`
+	StartAt     time.Time  `json:"startAt"`
+	EndAt       *time.Time `json:"endAt,omitempty"`
+	Description *string    `json:"description,omitempty"`
 }
 
 type LoginInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type QueryEventsResult struct {
+	Tasks  []*Task  `json:"tasks"`
+	Events []*Event `json:"events"`
 }
 
 type QueryTaskInput struct {
@@ -66,6 +67,11 @@ type TaskCreateInput struct {
 	Name        string     `json:"name"`
 	Description *string    `json:"description,omitempty"`
 	DueDate     *time.Time `json:"dueDate,omitempty"`
+}
+
+type TaskEventQueryInput struct {
+	Limit    *int32 `json:"limit,omitempty"`
+	OrderAsc *bool  `json:"orderAsc,omitempty"`
 }
 
 type TaskUpdateInput struct {

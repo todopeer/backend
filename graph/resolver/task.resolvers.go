@@ -158,7 +158,7 @@ func (r *queryResolver) UserTasks(ctx context.Context, username string) (*model.
 }
 
 // Events is the resolver for the events field.
-func (r *taskResolver) Events(ctx context.Context, obj *model.Task, input *model.EventQueryInput) ([]*model.Event, error) {
+func (r *taskResolver) Events(ctx context.Context, obj *model.Task, input *model.TaskEventQueryInput) ([]*model.Event, error) {
 	var options []orm.EventOptionFunc
 	if input != nil {
 		if input.Limit != nil {
@@ -172,7 +172,7 @@ func (r *taskResolver) Events(ctx context.Context, obj *model.Task, input *model
 	if err != nil {
 		return nil, err
 	}
-	return hoff.Map(events, model.ConvertToGraphqlEvent), nil
+	return hoff.Map(events, model.ConvertToGqlEventModel), nil
 }
 
 // Task returns graph.TaskResolver implementation.

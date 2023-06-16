@@ -123,6 +123,7 @@ func (t *TaskORM) UpdateTask(current, changes *Task, user *User) error {
 
 				if shouldCreateEvent {
 					if err := tx.Create(&Event{
+						UserID:  &user.ID,
 						TaskID:  &current.ID,
 						StartAt: &now,
 					}).Error; err != nil {
@@ -208,4 +209,12 @@ func (t *TaskORM) GetTasksByUserID(userID int64, options ...QueryTaskOptionFunc)
 		return nil, err
 	}
 	return tasks, nil
+}
+
+func (t *TaskORM) GetTasksByIDs(ids []int64) ([]*Task, error) {
+	var res []*Task
+	if err := t.db.Table("tasks").Where("id IN (?)", ids).Find(&res).Error; err != nil {
+		return nil, err
+	}
+	return res, nil
 }

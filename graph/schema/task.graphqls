@@ -16,19 +16,12 @@ type Task {
 	updatedAt: Time!
 
 	dueDate: Time
-	events(input: EventQueryInput): [Event!] @goField(forceResolver: true)
+	events(input: TaskEventQueryInput): [Event!] @goField(forceResolver: true)
 }
 
-input EventQueryInput {
+input TaskEventQueryInput {
 	limit: Int
 	orderAsc: Boolean
-}
-
-type Event {
-	id: ID!
-	taskID: ID!
-	startAt: Time!
-	endAt: Time
 }
 
 input TaskCreateInput {

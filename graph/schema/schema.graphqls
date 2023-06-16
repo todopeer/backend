@@ -1,3 +1,4 @@
+# string, format: "2006-02-01" (i.e., YYYY-MM-DD)
 scalar Date
 
 directive @auth on FIELD_DEFINITION

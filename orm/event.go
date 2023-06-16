@@ -1,6 +1,7 @@
 package orm
 
 import (
+	"errors"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -9,9 +10,12 @@ import (
 type Event struct {
 	ID     int64
 	TaskID *int64
+	UserID *int64
 
 	StartAt *time.Time
 	EndAt   *time.Time
+
+	Description *string
 }
 
 type EventOrm struct {
@@ -50,6 +54,18 @@ func EventQueryOptionWithStartAfter(startAfter *time.Time) EventOptionFunc {
 	}
 }
 
+func (e *EventOrm) GetUserEventsByDay(userid int64, dayStart time.Time) ([]*Event, error) {
+	startTime := dayStart
+	endTime := startTime.Add(time.Hour * 24)
+	var res []*Event
+
+	if err := e.DB.Table("events").Where("user_id = ? AND start_at >= ? AND end_at < ?", userid, startTime, endTime).Find(&res).Error; err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
 func (e *EventOrm) GetEventsByTaskID(taskID int64, options ...EventOptionFunc) ([]*Event, error) {
 	cfg := &eventConfig{}
 	for _, optionFunc := range options {
@@ -79,6 +95,19 @@ func (e *EventOrm) GetEventsByTaskID(taskID int64, options ...EventOptionFunc) (
 }
 
 func (e *EventOrm) CreateEvent(event *Event) error {
+	if event.StartAt == nil {
+		now := time.Now()
+		event.StartAt = &now
+	}
+
+	if event.UserID == nil {
+		return errors.New("userid must be defined")
+	}
+
+	if event.TaskID == nil {
+		return errors.New("taskid must be defined")
+	}
+
 	if err := e.DB.Create(event).Error; err != nil {
 		return err
 	}
