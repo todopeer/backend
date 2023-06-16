@@ -17,5 +17,5 @@ type QueryEventsResult {
 }
 
 extend type Query {
-	events(day: Date!): QueryEventsResult! @auth
+	events(since: Time!, days: Int!): QueryEventsResult! @auth
 }

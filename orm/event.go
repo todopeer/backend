@@ -54,9 +54,7 @@ func EventQueryOptionWithStartAfter(startAfter *time.Time) EventOptionFunc {
 	}
 }
 
-func (e *EventOrm) GetUserEventsByDay(userid int64, dayStart time.Time) ([]*Event, error) {
-	startTime := dayStart
-	endTime := startTime.Add(time.Hour * 24)
+func (e *EventOrm) GetUserEventsRange(userid int64, startTime, endTime time.Time) ([]*Event, error) {
 	var res []*Event
 
 	if err := e.DB.Table("events").Where("user_id = ? AND ( (start_at >= ? AND start_at <= ?) OR (end_at >= ? AND end_at <= ?) OR (start_at <= ? AND end_at IS NULL))", userid,

@@ -17,14 +17,11 @@ import (
 )
 
 // Events is the resolver for the events field.
-func (r *queryResolver) Events(ctx context.Context, day string) (*model.QueryEventsResult, error) {
-	startAt, err := time.Parse(time.DateOnly, day)
-	if err != nil {
-		return nil, err
-	}
-
+func (r *queryResolver) Events(ctx context.Context, since time.Time, days int32) (*model.QueryEventsResult, error) {
+	startAt := since
+	endAt := since.Add(time.Hour * 24 * time.Duration(days))
 	user := auth.UserFromContext(ctx)
-	events, err := r.eventOrm.GetUserEventsByDay(user.ID, startAt)
+	events, err := r.eventOrm.GetUserEventsRange(user.ID, startAt, endAt)
 	if err != nil {
 		return nil, err
 	}
