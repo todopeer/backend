@@ -4,7 +4,7 @@ import (
 	"github.com/todopeer/backend/orm"
 )
 
-func ConvertToGqlPublicUserModel(user *orm.User, taskOrm *orm.TaskORM) *UserPublic {
+func ConvertToGqlPublicUserModel(user *orm.User) *UserPublic {
 	return &UserPublic{
 		ID:            user.ID,
 		Username:      user.Username,
@@ -13,15 +13,14 @@ func ConvertToGqlPublicUserModel(user *orm.User, taskOrm *orm.TaskORM) *UserPubl
 	}
 }
 
-func ConvertToGqlUserModel(user *orm.User, taskOrm *orm.TaskORM) *User {
-	eu := NewUser(taskOrm)
-	eu.ID = user.ID
-	eu.Email = user.Email
-	eu.Username = user.Username
-	eu.Name = user.Name
-	eu.RunningTaskID = user.RunningTaskID
-
-	return eu
+func ConvertToGqlUserModel(user *orm.User) *User {
+	return &User{
+		ID:            user.ID,
+		Email:         user.Email,
+		Name:          user.Name,
+		Username:      user.Username,
+		RunningTaskID: user.RunningTaskID,
+	}
 }
 
 func ConvertToGqlTaskModel(task *orm.Task) *Task {
@@ -41,9 +40,9 @@ func ConvertToGqlTaskModel(task *orm.Task) *Task {
 func ConvertToGqlEventModel(e *orm.Event) *Event {
 	return &Event{
 		ID:          e.ID,
+		TaskID:      *e.TaskID,
 		StartAt:     *e.StartAt,
 		EndAt:       e.EndAt,
-		TaskID:      *e.TaskID,
 		Description: e.Description,
 	}
 }

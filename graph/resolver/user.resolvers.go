@@ -6,7 +6,6 @@ package resolver
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/todopeer/backend/graph"
@@ -38,10 +37,7 @@ func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*
 	}
 
 	// Convert the User ORM model to a GraphQL model before returning
-	graphUser := model.ConvertToGqlUserModel(user, r.taskOrm)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("convertion error")
-	// }
+	graphUser := model.ConvertToGqlUserModel(user)
 
 	return &model.AuthPayload{
 		User:  graphUser,
@@ -57,9 +53,6 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 
 	// For now, we'll just return true indicating the user is logged out.
 	user := auth.UserFromContext(ctx)
-	if user == nil {
-		return false, errors.New("could not find user from context")
-	}
 
 	// Use your UserORM to fetch the user and increase the SessionID
 	dbUser, err := r.userORM.GetUserByEmail(user.Email)
@@ -97,14 +90,14 @@ func (r *mutationResolver) UserUpdate(ctx context.Context, input model.UserUpdat
 	}
 
 	err := r.userORM.UpdateUser(user)
-	return model.ConvertToGqlUserModel(user, r.taskOrm), err
+	return model.ConvertToGqlUserModel(user), err
 }
 
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 	// Get user info from context. The actual implementation depends on how you handle authentication.
 	user := auth.UserFromContext(ctx)
-	return model.ConvertToGqlUserModel(user, r.taskOrm), nil
+	return model.ConvertToGqlUserModel(user), nil
 }
 
 // RunningTask is the resolver for the runningTask field.

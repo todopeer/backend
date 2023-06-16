@@ -19,3 +19,15 @@ type QueryEventsResult {
 extend type Query {
 	events(since: Time!, days: Int!): QueryEventsResult! @auth
 }
+
+input EventUpdateInput {
+	startAt: Time
+	endAt: Time
+
+    description: String
+}
+
+extend type Mutation {
+    eventUpdate(id: ID!, input: EventUpdateInput!): Event! @auth
+    eventRemove(id: ID!): Event! @auth
+}

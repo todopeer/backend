@@ -22,6 +22,12 @@ type Event struct {
 	Description *string    `json:"description,omitempty"`
 }
 
+type EventUpdateInput struct {
+	StartAt     *time.Time `json:"startAt,omitempty"`
+	EndAt       *time.Time `json:"endAt,omitempty"`
+	Description *string    `json:"description,omitempty"`
+}
+
 type LoginInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`

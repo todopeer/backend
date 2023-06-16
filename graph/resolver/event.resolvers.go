@@ -16,6 +16,49 @@ import (
 	"github.com/todopeer/backend/util/highorder"
 )
 
+// EventUpdate is the resolver for the eventUpdate field.
+func (r *mutationResolver) EventUpdate(ctx context.Context, id int64, input model.EventUpdateInput) (*model.Event, error) {
+	user := auth.UserFromContext(ctx)
+	event, err := r.eventOrm.GetEventByID(id)
+	if err != nil {
+		return nil, err
+	}
+	if *event.UserID != user.ID {
+		return nil, ErrUnauthorized
+	}
+
+	// Update event fields if corresponding field is set in input
+	if input.StartAt != nil {
+		event.StartAt = input.StartAt
+	}
+
+	if input.EndAt != nil {
+		event.EndAt = input.EndAt
+	}
+
+	if input.Description != nil {
+		event.Description = input.Description
+	}
+
+	// Fill in this part, to update event field if corresponding field is set in input
+
+	return model.ConvertToGqlEventModel(event), r.eventOrm.UpdateEvent(event)
+}
+
+// EventRemove is the resolver for the eventRemove field.
+func (r *mutationResolver) EventRemove(ctx context.Context, id int64) (*model.Event, error) {
+	user := auth.UserFromContext(ctx)
+	event, err := r.eventOrm.GetEventByID(id)
+	if err != nil {
+		return nil, err
+	}
+	if *event.UserID != user.ID {
+		return nil, ErrUnauthorized
+	}
+
+	return model.ConvertToGqlEventModel(event), r.eventOrm.DeleteEvent(event)
+}
+
 // Events is the resolver for the events field.
 func (r *queryResolver) Events(ctx context.Context, since time.Time, days int32) (*model.QueryEventsResult, error) {
 	startAt := since

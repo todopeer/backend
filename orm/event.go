@@ -19,12 +19,12 @@ type Event struct {
 }
 
 type EventOrm struct {
-	DB *gorm.DB
+	db *gorm.DB
 }
 
 func NewEventOrm(db *gorm.DB) *EventOrm {
 	return &EventOrm{
-		DB: db,
+		db: db,
 	}
 }
 
@@ -57,13 +57,53 @@ func EventQueryOptionWithStartAfter(startAfter *time.Time) EventOptionFunc {
 func (e *EventOrm) GetUserEventsRange(userid int64, startTime, endTime time.Time) ([]*Event, error) {
 	var res []*Event
 
-	if err := e.DB.Table("events").Where("user_id = ? AND ( (start_at >= ? AND start_at <= ?) OR (end_at >= ? AND end_at <= ?) OR (start_at <= ? AND end_at IS NULL))", userid,
+	if err := e.db.Table("events").Where("user_id = ? AND ( (start_at >= ? AND start_at <= ?) OR (end_at >= ? AND end_at <= ?) OR (start_at <= ? AND end_at IS NULL))", userid,
 		startTime, endTime, startTime, endTime, startTime).Find(&res).Error; err != nil {
 
 		return nil, err
 	}
 
 	return res, nil
+}
+
+func (t *EventOrm) GetEventByID(id int64) (*Event, error) {
+	event := &Event{}
+	if err := t.db.First(event, id).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return event, nil
+}
+
+// remove an event. Also update the task status if it's running
+func (t *EventOrm) DeleteEvent(event *Event) error {
+	return t.db.Transaction(func(tx *gorm.DB) error {
+		err := tx.Delete(event).Error
+		if err != nil {
+			return err
+		}
+
+		if event.EndAt != nil {
+			return nil
+		}
+
+		// update the task to paused, if it's still doing
+		err = tx.Table("tasks").
+			Where("id = ? AND status = ?", *event.TaskID, TaskStatusDoing).
+			Update("status", TaskStatusPaused).
+			Error
+		if err != nil {
+			return err
+		}
+
+		// update user's running task
+		return tx.Table("users").
+			Where("id = ? AND running_task_id = ?", *event.UserID, *event.TaskID).
+			Update("running_task_id", nil).
+			Error
+	})
 }
 
 func (e *EventOrm) GetEventsByTaskID(taskID int64, options ...EventOptionFunc) ([]*Event, error) {
@@ -73,7 +113,7 @@ func (e *EventOrm) GetEventsByTaskID(taskID int64, options ...EventOptionFunc) (
 	}
 
 	var events []*Event
-	query := e.DB.Model(Event{}).Where("task_id = ?", taskID)
+	query := e.db.Model(Event{}).Where("task_id = ?", taskID)
 	if cfg.limit != nil {
 		query = query.Limit(*cfg.limit)
 	}
@@ -108,14 +148,26 @@ func (e *EventOrm) CreateEvent(event *Event) error {
 		return errors.New("taskid must be defined")
 	}
 
-	if err := e.DB.Create(event).Error; err != nil {
+	if err := e.db.Create(event).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
 func (e *EventOrm) UpdateEvent(event *Event) error {
-	if err := e.DB.Save(event).Error; err != nil {
+	if event.StartAt == nil {
+		return errors.New("start_at must be set")
+	}
+
+	if event.StartAt.After(time.Now()) {
+		return errors.New("cannot set start_at to be a future value")
+	}
+
+	if event.EndAt != nil && event.StartAt.After(*event.EndAt) {
+		return errors.New("cannot set start_at to be after end_at")
+	}
+
+	if err := e.db.Save(event).Error; err != nil {
 		return err
 	}
 	return nil

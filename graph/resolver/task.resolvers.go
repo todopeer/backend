@@ -6,7 +6,6 @@ package resolver
 
 import (
 	"context"
-	"errors"
 
 	"github.com/Shopify/hoff"
 	"github.com/jinzhu/gorm"
@@ -45,7 +44,7 @@ func (r *mutationResolver) TaskUpdate(ctx context.Context, id int64, input model
 	}
 
 	if *task.UserID != user.ID {
-		return nil, errors.New("not authorized to update this task")
+		return nil, ErrUnauthorized
 	}
 
 	changes := input.ChangesAsTask()
@@ -68,7 +67,7 @@ func (r *mutationResolver) TaskRemove(ctx context.Context, id int64) (*model.Tas
 	}
 
 	if *task.UserID != user.ID {
-		return nil, errors.New("not authorized to update this task")
+		return nil, ErrUnauthorized
 	}
 
 	err = r.taskOrm.DeleteTask(task, user)
@@ -115,12 +114,12 @@ func (r *queryResolver) Task(ctx context.Context, id int64) (*model.Task, error)
 		return nil, err
 	}
 	if task == nil {
-		return nil, errors.New("not found")
+		return nil, ErrNotFound
 	}
 
 	if user.ID != *task.UserID {
 		// TODO: make this error common
-		return nil, errors.New("unauthorized")
+		return nil, ErrUnauthorized
 	}
 
 	taskInGQL := model.ConvertToGqlTaskModel(task)
@@ -142,7 +141,7 @@ func (r *queryResolver) UserTasks(ctx context.Context, username string) (*model.
 	taskResp := hoff.Map(tasks, model.ConvertToGqlTaskModel)
 
 	res := &model.QueryUserTaskResult{
-		User:  model.ConvertToGqlPublicUserModel(user, r.taskOrm),
+		User:  model.ConvertToGqlPublicUserModel(user),
 		Tasks: taskResp,
 	}
 
