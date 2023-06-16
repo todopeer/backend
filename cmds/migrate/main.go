@@ -22,7 +22,7 @@ func main() {
 	}
 
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://migrations", // replace with the path to your migrations folder
+		"file://migrations",
 		"sqlite3",
 		driver,
 	)

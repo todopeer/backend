@@ -59,7 +59,9 @@ func (e *EventOrm) GetUserEventsByDay(userid int64, dayStart time.Time) ([]*Even
 	endTime := startTime.Add(time.Hour * 24)
 	var res []*Event
 
-	if err := e.DB.Table("events").Where("user_id = ? AND start_at >= ? AND end_at < ?", userid, startTime, endTime).Find(&res).Error; err != nil {
+	if err := e.DB.Table("events").Where("user_id = ? AND ( (start_at >= ? AND start_at <= ?) OR (end_at >= ? AND end_at <= ?) OR (start_at <= ? AND end_at IS NULL))", userid,
+		startTime, endTime, startTime, endTime, startTime).Find(&res).Error; err != nil {
+
 		return nil, err
 	}
 
