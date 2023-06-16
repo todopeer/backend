@@ -34,6 +34,7 @@ func ConvertToGqlTaskModel(task *orm.Task) *Task {
 		DueDate:     task.DueDate,
 		CreatedAt:   *task.CreatedAt,
 		UpdatedAt:   *task.UpdatedAt,
+		DeletedAt:   task.DeletedAt,
 	}
 }
 

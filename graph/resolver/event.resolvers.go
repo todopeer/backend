@@ -72,7 +72,7 @@ func (r *queryResolver) Events(ctx context.Context, since time.Time, days int32)
 	taskIdsWithDup := hoff.Map(events, func(e *orm.Event) int64 { return *e.TaskID })
 	sort.Slice(taskIdsWithDup, func(i, j int) bool { return taskIdsWithDup[i] < taskIdsWithDup[j] })
 	taskIds := highorder.Uniq(taskIdsWithDup)
-	tasks, err := r.taskOrm.GetTasksByIDs(taskIds)
+	tasks, err := r.taskOrm.GetTasksByIDs(taskIds, orm.GetTasksByIDsOptionWithDeleted)
 	if err != nil {
 		return nil, err
 	}

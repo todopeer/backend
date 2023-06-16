@@ -15,6 +15,8 @@ type Task {
 	createdAt: Time!
 	updatedAt: Time!
 
+	deletedAt: Time
+
 	dueDate: Time
 	events(input: TaskEventQueryInput): [Event!] @goField(forceResolver: true)
 }

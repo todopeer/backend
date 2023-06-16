@@ -65,6 +65,7 @@ type Task struct {
 	Status      TaskStatus `json:"status"`
 	CreatedAt   time.Time  `json:"createdAt"`
 	UpdatedAt   time.Time  `json:"updatedAt"`
+	DeletedAt   *time.Time `json:"deletedAt,omitempty"`
 	DueDate     *time.Time `json:"dueDate,omitempty"`
 	Events      []*Event   `json:"events,omitempty"`
 }

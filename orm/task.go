@@ -24,8 +24,7 @@ type Task struct {
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
 
-	// deprecated
-	CompletedAt *time.Time
+	DeletedAt *time.Time
 
 	DueDate *time.Time
 }
@@ -48,9 +47,6 @@ func (t *Task) Merge(changes *Task) {
 	}
 	if changes.UpdatedAt != nil {
 		t.UpdatedAt = changes.UpdatedAt
-	}
-	if changes.CompletedAt != nil {
-		t.CompletedAt = changes.CompletedAt
 	}
 	if changes.DueDate != nil {
 		t.DueDate = changes.DueDate
@@ -161,7 +157,7 @@ func (t *TaskORM) DeleteTask(task *Task, user *User) error {
 			return tx.Model(&user).Update("running_task_id", nil).Error
 		}
 
-		// also mark event as done, as needed
+		// also delete events
 		return tx.Table("events").Where("task_id = ? AND end_at IS NULL", task.ID).Update("end_at", now).Error
 	})
 }
@@ -211,9 +207,29 @@ func (t *TaskORM) GetTasksByUserID(userID int64, options ...QueryTaskOptionFunc)
 	return tasks, nil
 }
 
-func (t *TaskORM) GetTasksByIDs(ids []int64) ([]*Task, error) {
+type getTaskByIdCfg struct {
+	withDeleted bool
+}
+
+type GetTasksByIDsOption func(*getTaskByIdCfg)
+
+func GetTasksByIDsOptionWithDeleted(cfg *getTaskByIdCfg) {
+	cfg.withDeleted = true
+}
+
+func (t *TaskORM) GetTasksByIDs(ids []int64, options ...GetTasksByIDsOption) ([]*Task, error) {
+	cfg := &getTaskByIdCfg{}
+	for _, option := range options {
+		option(cfg)
+	}
+
 	var res []*Task
-	if err := t.db.Table("tasks").Where("id IN (?)", ids).Find(&res).Error; err != nil {
+	query := t.db
+	if cfg.withDeleted {
+		query = query.Unscoped()
+	}
+
+	if err := query.Table("tasks").Where("id IN (?)", ids).Find(&res).Error; err != nil {
 		return nil, err
 	}
 	return res, nil

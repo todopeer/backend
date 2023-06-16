@@ -1054,6 +1054,8 @@ func (ec *executionContext) fieldContext_Mutation_taskCreate(ctx context.Context
 				return ec.fieldContext_Task_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Task_updatedAt(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Task_deletedAt(ctx, field)
 			case "dueDate":
 				return ec.fieldContext_Task_dueDate(ctx, field)
 			case "events":
@@ -1147,6 +1149,8 @@ func (ec *executionContext) fieldContext_Mutation_taskUpdate(ctx context.Context
 				return ec.fieldContext_Task_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Task_updatedAt(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Task_deletedAt(ctx, field)
 			case "dueDate":
 				return ec.fieldContext_Task_dueDate(ctx, field)
 			case "events":
@@ -1240,6 +1244,8 @@ func (ec *executionContext) fieldContext_Mutation_taskRemove(ctx context.Context
 				return ec.fieldContext_Task_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Task_updatedAt(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Task_deletedAt(ctx, field)
 			case "dueDate":
 				return ec.fieldContext_Task_dueDate(ctx, field)
 			case "events":
@@ -1669,6 +1675,8 @@ func (ec *executionContext) fieldContext_Query_tasks(ctx context.Context, field 
 				return ec.fieldContext_Task_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Task_updatedAt(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Task_deletedAt(ctx, field)
 			case "dueDate":
 				return ec.fieldContext_Task_dueDate(ctx, field)
 			case "events":
@@ -1762,6 +1770,8 @@ func (ec *executionContext) fieldContext_Query_task(ctx context.Context, field g
 				return ec.fieldContext_Task_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Task_updatedAt(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Task_deletedAt(ctx, field)
 			case "dueDate":
 				return ec.fieldContext_Task_dueDate(ctx, field)
 			case "events":
@@ -2102,6 +2112,8 @@ func (ec *executionContext) fieldContext_QueryEventsResult_tasks(ctx context.Con
 				return ec.fieldContext_Task_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Task_updatedAt(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Task_deletedAt(ctx, field)
 			case "dueDate":
 				return ec.fieldContext_Task_dueDate(ctx, field)
 			case "events":
@@ -2271,6 +2283,8 @@ func (ec *executionContext) fieldContext_QueryUserTaskResult_tasks(ctx context.C
 				return ec.fieldContext_Task_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Task_updatedAt(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Task_deletedAt(ctx, field)
 			case "dueDate":
 				return ec.fieldContext_Task_dueDate(ctx, field)
 			case "events":
@@ -2330,6 +2344,8 @@ func (ec *executionContext) fieldContext_QueryUserTaskResult_doing(ctx context.C
 				return ec.fieldContext_Task_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Task_updatedAt(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Task_deletedAt(ctx, field)
 			case "dueDate":
 				return ec.fieldContext_Task_dueDate(ctx, field)
 			case "events":
@@ -2590,6 +2606,47 @@ func (ec *executionContext) _Task_updatedAt(ctx context.Context, field graphql.C
 }
 
 func (ec *executionContext) fieldContext_Task_updatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Task",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Task_deletedAt(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Task_deletedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeletedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Task_deletedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Task",
 		Field:      field,
@@ -2966,6 +3023,8 @@ func (ec *executionContext) fieldContext_User_runningTask(ctx context.Context, f
 				return ec.fieldContext_Task_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Task_updatedAt(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Task_deletedAt(ctx, field)
 			case "dueDate":
 				return ec.fieldContext_Task_dueDate(ctx, field)
 			case "events":
@@ -5793,6 +5852,10 @@ func (ec *executionContext) _Task(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "deletedAt":
+
+			out.Values[i] = ec._Task_deletedAt(ctx, field, obj)
+
 		case "dueDate":
 
 			out.Values[i] = ec._Task_dueDate(ctx, field, obj)
