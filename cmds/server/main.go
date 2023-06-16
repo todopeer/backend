@@ -10,6 +10,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/jinzhu/gorm"
+	"github.com/rs/cors"
 	"github.com/todopeer/backend/graph"
 	"github.com/todopeer/backend/graph/resolver"
 	"github.com/todopeer/backend/orm"
@@ -53,7 +54,8 @@ func main() {
 	var srv http.Handler = handler.NewDefaultServer(graph.NewExecutableSchema(c))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	middlewares := []middleware{auth.AuthMiddleware(userOrm), logRequestBody}
+	middlewares := []middleware{cors.Default().Handler, auth.AuthMiddleware(userOrm), logRequestBody}
+
 	for _, middleware := range middlewares {
 		srv = middleware(srv)
 	}
