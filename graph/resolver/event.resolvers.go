@@ -27,6 +27,22 @@ func (r *mutationResolver) EventUpdate(ctx context.Context, id int64, input mode
 		return nil, ErrUnauthorized
 	}
 
+	if input.TaskID != nil {
+		// if assigning to a new task, check if user have access to this task
+		task, err := r.taskOrm.GetTaskByID(*input.TaskID)
+		if err != nil {
+			return nil, err
+		}
+		if task == nil {
+			return nil, ErrNotFound
+		}
+		if *task.UserID != user.ID {
+			return nil, ErrUnauthorized
+		}
+
+		event.TaskID = input.TaskID
+	}
+
 	// Update event fields if corresponding field is set in input
 	if input.StartAt != nil {
 		event.StartAt = input.StartAt

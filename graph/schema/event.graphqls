@@ -26,6 +26,9 @@ input EventUpdateInput {
 	startAt: Time
 	endAt: Time
 
+    # to reassign this event to another task
+    taskID: ID
+
     description: String
 }
 

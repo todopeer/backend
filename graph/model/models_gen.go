@@ -25,6 +25,7 @@ type Event struct {
 type EventUpdateInput struct {
 	StartAt     *time.Time `json:"startAt,omitempty"`
 	EndAt       *time.Time `json:"endAt,omitempty"`
+	TaskID      *int64     `json:"taskID,omitempty"`
 	Description *string    `json:"description,omitempty"`
 }
 

@@ -5086,7 +5086,7 @@ func (ec *executionContext) unmarshalInputEventUpdateInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"startAt", "endAt", "description"}
+	fieldsInOrder := [...]string{"startAt", "endAt", "taskID", "description"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -5111,6 +5111,15 @@ func (ec *executionContext) unmarshalInputEventUpdateInput(ctx context.Context, 
 				return it, err
 			}
 			it.EndAt = data
+		case "taskID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("taskID"))
+			data, err := ec.unmarshalOID2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TaskID = data
 		case "description":
 			var err error
 
