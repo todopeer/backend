@@ -16,12 +16,6 @@ type QueryEventsResult {
     events: [Event!]!
 }
 
-extend type Query {
-	events(since: Time!, days: Int!): QueryEventsResult! @auth
-    # get specific event (where user have access to)
-	event(id: ID!): Event! @auth
-}
-
 input EventCreateInput {
 	startAt: Time!
 	endAt: Time!
@@ -37,6 +31,15 @@ input EventUpdateInput {
     taskID: ID
 
     description: String
+}
+
+extend type Query {
+    # get events, ordered DESC order, look forward `days` days. 
+    # if days not provided, default it to 1
+    # if limit not provided, get all events
+	events(since: Time!, days: Int, limit: Int): QueryEventsResult! @auth
+    # get specific event (where user have access to)
+	event(id: ID!): Event! @auth
 }
 
 extend type Mutation {

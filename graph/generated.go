@@ -65,7 +65,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Ping(ctx context.Context) (bool, error)
-	Events(ctx context.Context, since time.Time, days int32) (*model.QueryEventsResult, error)
+	Events(ctx context.Context, since time.Time, days *int32, limit *int32) (*model.QueryEventsResult, error)
 	Event(ctx context.Context, id int64) (*model.Event, error)
 	Tasks(ctx context.Context, input model.QueryTaskInput) ([]*model.Task, error)
 	Task(ctx context.Context, id int64) (*model.Task, error)
@@ -381,15 +381,24 @@ func (ec *executionContext) field_Query_events_args(ctx context.Context, rawArgs
 		}
 	}
 	args["since"] = arg0
-	var arg1 int32
+	var arg1 *int32
 	if tmp, ok := rawArgs["days"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("days"))
-		arg1, err = ec.unmarshalNInt2int32(ctx, tmp)
+		arg1, err = ec.unmarshalOInt2ᚖint32(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["days"] = arg1
+	var arg2 *int32
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg2, err = ec.unmarshalOInt2ᚖint32(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg2
 	return args, nil
 }
 
@@ -1670,7 +1679,7 @@ func (ec *executionContext) _Query_events(ctx context.Context, field graphql.Col
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().Events(rctx, fc.Args["since"].(time.Time), fc.Args["days"].(int32))
+			return ec.resolvers.Query().Events(rctx, fc.Args["since"].(time.Time), fc.Args["days"].(*int32), fc.Args["limit"].(*int32))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.Auth == nil {
@@ -6718,21 +6727,6 @@ func (ec *executionContext) unmarshalNID2int64(ctx context.Context, v interface{
 
 func (ec *executionContext) marshalNID2int64(ctx context.Context, sel ast.SelectionSet, v int64) graphql.Marshaler {
 	res := graphql.MarshalInt64(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
-func (ec *executionContext) unmarshalNInt2int32(ctx context.Context, v interface{}) (int32, error) {
-	res, err := graphql.UnmarshalInt32(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNInt2int32(ctx context.Context, sel ast.SelectionSet, v int32) graphql.Marshaler {
-	res := graphql.MarshalInt32(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")

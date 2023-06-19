@@ -103,13 +103,17 @@ func (r *mutationResolver) EventRemove(ctx context.Context, id int64) (*model.Ev
 }
 
 // Events is the resolver for the events field.
-func (r *queryResolver) Events(ctx context.Context, since time.Time, days int32) (*model.QueryEventsResult, error) {
+func (r *queryResolver) Events(ctx context.Context, since time.Time, daysP *int32, limit *int32) (*model.QueryEventsResult, error) {
 	user := auth.UserFromContext(ctx)
 
+	var days int32 = 1
+	if daysP != nil {
+		days = *daysP
+	}
 	startAt := since
 	endAt := since.Add(time.Hour * 24 * time.Duration(days))
 
-	events, err := r.eventOrm.GetUserEventsRange(user.ID, startAt, endAt)
+	events, err := r.eventOrm.GetUserEventsRange(user.ID, startAt, endAt, orm.GetUserEventsRangeWithLimit(limit))
 	if err != nil {
 		return nil, err
 	}

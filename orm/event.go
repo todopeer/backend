@@ -54,12 +54,34 @@ func EventQueryOptionWithStartAfter(startAfter *time.Time) EventOptionFunc {
 	}
 }
 
-func (e *EventOrm) GetUserEventsRange(userid int64, startTime, endTime time.Time) ([]*Event, error) {
+type getUserEventsRangeOption struct {
+	limit *int32
+}
+type GetUserEventsRangeOptionFunc func(*getUserEventsRangeOption)
+
+func GetUserEventsRangeWithLimit(limit *int32) GetUserEventsRangeOptionFunc {
+	return func(option *getUserEventsRangeOption) {
+		option.limit = limit
+	}
+}
+
+func (e *EventOrm) GetUserEventsRange(userid int64, startTime, endTime time.Time, options ...GetUserEventsRangeOptionFunc) ([]*Event, error) {
 	var res []*Event
 
-	if err := e.db.Table("events").Where("user_id = ? AND ( (start_at >= ? AND start_at <= ?) OR (end_at >= ? AND end_at <= ?) OR (start_at <= ? AND end_at IS NULL))", userid,
-		startTime, endTime, startTime, endTime, startTime).Find(&res).Error; err != nil {
+	cfg := &getUserEventsRangeOption{}
+	for _, option := range options {
+		option(cfg)
+	}
 
+	query := e.db.Table("events").
+		Where("user_id = ? AND ( (start_at >= ? AND start_at <= ?) OR (end_at >= ? AND end_at <= ?) OR (start_at <= ? AND end_at IS NULL))",
+			userid, startTime, endTime, startTime, endTime, startTime).Order("start_at DESC")
+
+	if cfg.limit != nil {
+		query = query.Limit(*cfg.limit)
+	}
+
+	if err := query.Find(&res).Error; err != nil {
 		return nil, err
 	}
 
