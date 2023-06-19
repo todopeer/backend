@@ -102,7 +102,7 @@ func (t *TaskORM) UpdateTask(current, changes *Task, user *User) error {
 							return err
 						}
 
-						// create new event for this task
+						// stop previous running event as well
 						if err := tx.Table("events").Where("task_id = ? AND end_at IS NULL", *runningTaskID).Update("end_at", &now).Error; err != nil {
 							return err
 						}
@@ -112,20 +112,27 @@ func (t *TaskORM) UpdateTask(current, changes *Task, user *User) error {
 					}
 				}
 
-				err := tx.Model(user).Update("running_task_id", current.ID).Error
+				userFieldToUpdate := map[string]interface{}{
+					"running_task_id": current.ID,
+				}
+				if shouldCreateEvent {
+					evt := &Event{
+						UserID:  &user.ID,
+						TaskID:  &current.ID,
+						StartAt: &now,
+					}
+					if err := tx.Create(evt).Error; err != nil {
+						return err
+					}
+
+					userFieldToUpdate["running_event_id"] = evt.ID
+				}
+
+				err := tx.Model(user).Update(userFieldToUpdate).Error
 				if err != nil {
 					return err
 				}
 
-				if shouldCreateEvent {
-					if err := tx.Create(&Event{
-						UserID:  &user.ID,
-						TaskID:  &current.ID,
-						StartAt: &now,
-					}).Error; err != nil {
-						return err
-					}
-				}
 			} else {
 				if runningTaskID != nil && *runningTaskID == current.ID {
 					if err := tx.Model(user).Update("running_task_id", nil).Error; err != nil {
@@ -154,10 +161,13 @@ func (t *TaskORM) DeleteTask(task *Task, user *User) error {
 		}
 
 		if user != nil && user.RunningTaskID != nil && *user.RunningTaskID == task.ID {
-			return tx.Model(&user).Update("running_task_id", nil).Error
+			return tx.Model(&user).Update(map[string]interface{}{
+				"running_task_id":  nil,
+				"running_event_id": nil,
+			}).Error
 		}
 
-		// also delete events
+		// also stop events
 		return tx.Table("events").Where("task_id = ? AND end_at IS NULL", task.ID).Update("end_at", now).Error
 	})
 }

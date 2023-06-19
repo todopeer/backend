@@ -197,14 +197,38 @@ func validateStartEndTime(event *Event) error {
 	return nil
 }
 
-func (e *EventOrm) UpdateEvent(event *Event) error {
+// UpdateEvent with optional user field. If passed in, would check if user.runningEvent matches the current event -- if so, pause event if updating event by assigning the eventID
+func (e *EventOrm) UpdateEvent(event *Event, user *User) error {
 	err := validateStartEndTime(event)
 	if err != nil {
 		return err
 	}
 
-	if err := e.db.Save(event).Error; err != nil {
-		return err
-	}
+	e.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Save(event).Error; err != nil {
+			return err
+		}
+
+		if user.RunningEventID != nil && *user.RunningEventID == event.ID && event.EndAt != nil {
+			// pause the running task
+			if user.RunningTaskID != nil {
+				err := tx.Table("tasks").Where("id = ? AND status = ?", *user.RunningTaskID, TaskStatusDoing).Update("status", TaskStatusPaused).Error
+				if err != nil {
+					return err
+				}
+			}
+			// clear the user info
+			err = tx.Model(user).Update(map[string]interface{}{
+				"running_task_id": nil,
+				"running_event_id": nil,
+			}).Error
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+
 	return nil
 }

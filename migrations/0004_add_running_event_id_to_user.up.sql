@@ -1,0 +1,1 @@
+ALTER TABLE users ADD COLUMN running_event_id INTEGER;

@@ -15,11 +15,12 @@ func ConvertToGqlPublicUserModel(user *orm.User) *UserPublic {
 
 func ConvertToGqlUserModel(user *orm.User) *User {
 	return &User{
-		ID:            user.ID,
-		Email:         user.Email,
-		Name:          user.Name,
-		Username:      user.Username,
-		RunningTaskID: user.RunningTaskID,
+		ID:             user.ID,
+		Email:          user.Email,
+		Name:           user.Name,
+		Username:       user.Username,
+		RunningTaskID:  user.RunningTaskID,
+		RunningEventID: user.RunningEventID,
 	}
 }
 

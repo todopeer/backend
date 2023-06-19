@@ -42,6 +42,9 @@ func (r *mutationResolver) TaskUpdate(ctx context.Context, id int64, input model
 	if err != nil {
 		return nil, err
 	}
+	if task == nil {
+		return nil, ErrNotFound
+	}
 
 	if *task.UserID != user.ID {
 		return nil, ErrUnauthorized

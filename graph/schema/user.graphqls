@@ -11,8 +11,10 @@ type User {
 	username: String
 
 	runningTaskID: ID
-
 	runningTask: Task
+
+	runningEventID: ID
+	runningEvent: Event
 }
 
 input LoginInput {

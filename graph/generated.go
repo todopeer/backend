@@ -77,6 +77,8 @@ type TaskResolver interface {
 }
 type UserResolver interface {
 	RunningTask(ctx context.Context, obj *model.User) (*model.Task, error)
+
+	RunningEvent(ctx context.Context, obj *model.User) (*model.Event, error)
 }
 
 type executableSchema struct {
@@ -551,6 +553,10 @@ func (ec *executionContext) fieldContext_AuthPayload_user(ctx context.Context, f
 				return ec.fieldContext_User_runningTaskID(ctx, field)
 			case "runningTask":
 				return ec.fieldContext_User_runningTask(ctx, field)
+			case "runningEventID":
+				return ec.fieldContext_User_runningEventID(ctx, field)
+			case "runningEvent":
+				return ec.fieldContext_User_runningEvent(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -1602,6 +1608,10 @@ func (ec *executionContext) fieldContext_Mutation_userUpdate(ctx context.Context
 				return ec.fieldContext_User_runningTaskID(ctx, field)
 			case "runningTask":
 				return ec.fieldContext_User_runningTask(ctx, field)
+			case "runningEventID":
+				return ec.fieldContext_User_runningEventID(ctx, field)
+			case "runningEvent":
+				return ec.fieldContext_User_runningEvent(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -2150,6 +2160,10 @@ func (ec *executionContext) fieldContext_Query_me(ctx context.Context, field gra
 				return ec.fieldContext_User_runningTaskID(ctx, field)
 			case "runningTask":
 				return ec.fieldContext_User_runningTask(ctx, field)
+			case "runningEventID":
+				return ec.fieldContext_User_runningEventID(ctx, field)
+			case "runningEvent":
+				return ec.fieldContext_User_runningEvent(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -3256,6 +3270,100 @@ func (ec *executionContext) fieldContext_User_runningTask(ctx context.Context, f
 				return ec.fieldContext_Task_events(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Task", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_runningEventID(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_runningEventID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RunningEventID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int64)
+	fc.Result = res
+	return ec.marshalOID2ᚖint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_runningEventID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_runningEvent(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_runningEvent(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.User().RunningEvent(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Event)
+	fc.Result = res
+	return ec.marshalOEvent2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐEvent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_runningEvent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Event_id(ctx, field)
+			case "taskID":
+				return ec.fieldContext_Event_taskID(ctx, field)
+			case "startAt":
+				return ec.fieldContext_Event_startAt(ctx, field)
+			case "endAt":
+				return ec.fieldContext_Event_endAt(ctx, field)
+			case "description":
+				return ec.fieldContext_Event_description(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Event", field.Name)
 		},
 	}
 	return fc, nil
@@ -6254,6 +6362,27 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 				return innerFunc(ctx)
 
 			})
+		case "runningEventID":
+
+			out.Values[i] = ec._User_runningEventID(ctx, field, obj)
+
+		case "runningEvent":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_runningEvent(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7244,6 +7373,13 @@ func (ec *executionContext) marshalOEvent2ᚕᚖgithubᚗcomᚋtodopeerᚋbacken
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalOEvent2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐEvent(ctx context.Context, sel ast.SelectionSet, v *model.Event) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Event(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOID2ᚖint64(ctx context.Context, v interface{}) (*int64, error) {

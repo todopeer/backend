@@ -124,6 +124,30 @@ func (r *userResolver) RunningTask(ctx context.Context, obj *model.User) (*model
 	return tt, nil
 }
 
+// RunningEvent is the resolver for the runningEvent field.
+func (r *userResolver) RunningEvent(ctx context.Context, obj *model.User) (*model.Event, error) {
+	if obj.RunningEventID == nil {
+		return nil, nil
+	}
+
+	if obj.BufRunningEvent != nil {
+		return obj.BufRunningEvent, nil
+	}
+
+	e, err := r.eventOrm.GetEventByID(*obj.RunningEventID)
+	if err != nil {
+		return nil, err
+	}
+
+	ee := model.ConvertToGqlEventModel(e)
+	if err != nil {
+		return nil, err
+	}
+	obj.BufRunningEvent = ee
+
+	return ee, nil
+}
+
 // User returns graph.UserResolver implementation.
 func (r *Resolver) User() graph.UserResolver { return &userResolver{r} }
 

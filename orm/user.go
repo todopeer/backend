@@ -9,13 +9,14 @@ import (
 )
 
 type User struct {
-	ID            int64  `gorm:"primary_key"`
-	Email         string `gorm:"unique;not null"`
-	Name          *string
-	Username      *string `gorm:"unique"`
-	PasswordHash  string
-	RunningTaskID *int64
-	SessionID     int32
+	ID             int64  `gorm:"primary_key"`
+	Email          string `gorm:"unique;not null"`
+	Name           *string
+	Username       *string `gorm:"unique"`
+	PasswordHash   string
+	RunningTaskID  *int64
+	RunningEventID *int64
+	SessionID      int32
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -78,56 +79,6 @@ func (t *UserORM) GetUserByID(userID int64) (*User, error) {
 	}
 	return user, nil
 }
-
-/*
-func (o *UserORM) SetRunningTask(ctx context.Context, user *User, t *Task) error {
-	if user.RunningTaskID != nil && *user.RunningTaskID == t.ID {
-		// already running this task
-		return nil
-	}
-
-	return o.db.Transaction(func(tx *gorm.DB) error {
-		now := time.Now()
-		event := &Event{
-			TaskID:  &t.ID,
-			StartAt: &now,
-		}
-
-		if user.RunningTaskID != nil {
-			// re-setting ongoing task, no action needed
-			if *user.RunningTaskID == t.ID {
-				return nil
-			}
-
-			// pause event of previous running task
-			err := tx.
-				Model(event).
-				Where("task_id = ? AND end_at IS NULL", *user.RunningTaskID).
-				Update("end_at", now).
-				Error
-
-			if err != nil {
-				return err
-			}
-		}
-
-		user.RunningTaskID = &t.ID
-		err := tx.Model(user).Update("running_task_id", t.ID).Error
-		if err != nil {
-			log.Println("db update user error: ", err)
-			return err
-		}
-
-		err = tx.Model(t).Update("status", ptrInt(TaskStatusDoing)).Error
-		if err != nil {
-			return err
-		}
-
-		// start a new event for this
-		return tx.Create(event).Error
-	})
-}
-*/
 
 func (o *UserORM) GetUserByUsername(ctx context.Context, username string) (*User, error) {
 	res := &User{}
