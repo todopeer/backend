@@ -18,6 +18,8 @@ type QueryEventsResult {
 
 extend type Query {
 	events(since: Time!, days: Int!): QueryEventsResult! @auth
+    # get specific event (where user have access to)
+	event(id: ID!): Event! @auth
 }
 
 input EventUpdateInput {

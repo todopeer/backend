@@ -61,9 +61,11 @@ func (r *mutationResolver) EventRemove(ctx context.Context, id int64) (*model.Ev
 
 // Events is the resolver for the events field.
 func (r *queryResolver) Events(ctx context.Context, since time.Time, days int32) (*model.QueryEventsResult, error) {
+	user := auth.UserFromContext(ctx)
+
 	startAt := since
 	endAt := since.Add(time.Hour * 24 * time.Duration(days))
-	user := auth.UserFromContext(ctx)
+
 	events, err := r.eventOrm.GetUserEventsRange(user.ID, startAt, endAt)
 	if err != nil {
 		return nil, err
@@ -81,4 +83,20 @@ func (r *queryResolver) Events(ctx context.Context, since time.Time, days int32)
 		Tasks:  hoff.Map(tasks, model.ConvertToGqlTaskModel),
 		Events: hoff.Map(events, model.ConvertToGqlEventModel),
 	}, nil
+}
+
+// Event is the resolver for the event field.
+func (r *queryResolver) Event(ctx context.Context, id int64) (*model.Event, error) {
+	event, err := r.eventOrm.GetEventByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	user := auth.UserFromContext(ctx)
+
+	if user.ID != *event.UserID {
+		return nil, ErrUnauthorized
+	}
+
+	return model.ConvertToGqlEventModel(event), nil
 }
