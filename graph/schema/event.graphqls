@@ -22,6 +22,13 @@ extend type Query {
 	event(id: ID!): Event! @auth
 }
 
+input EventCreateInput {
+	startAt: Time!
+	endAt: Time!
+
+    description: String
+}
+
 input EventUpdateInput {
 	startAt: Time
 	endAt: Time
@@ -33,6 +40,7 @@ input EventUpdateInput {
 }
 
 extend type Mutation {
+    eventCreate(taskID: ID!, input: EventCreateInput!): Event! @auth
     eventUpdate(id: ID!, input: EventUpdateInput!): Event! @auth
     eventRemove(id: ID!): Event! @auth
 }

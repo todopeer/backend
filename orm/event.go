@@ -140,6 +140,11 @@ func (e *EventOrm) CreateEvent(event *Event) error {
 		event.StartAt = &now
 	}
 
+	err := validateStartEndTime(event)
+	if err != nil {
+		return err
+	}
+
 	if event.UserID == nil {
 		return errors.New("userid must be defined")
 	}
@@ -154,7 +159,7 @@ func (e *EventOrm) CreateEvent(event *Event) error {
 	return nil
 }
 
-func (e *EventOrm) UpdateEvent(event *Event) error {
+func validateStartEndTime(event *Event) error {
 	if event.StartAt == nil {
 		return errors.New("start_at must be set")
 	}
@@ -165,6 +170,15 @@ func (e *EventOrm) UpdateEvent(event *Event) error {
 
 	if event.EndAt != nil && event.StartAt.After(*event.EndAt) {
 		return errors.New("cannot set start_at to be after end_at")
+	}
+
+	return nil
+}
+
+func (e *EventOrm) UpdateEvent(event *Event) error {
+	err := validateStartEndTime(event)
+	if err != nil {
+		return err
 	}
 
 	if err := e.db.Save(event).Error; err != nil {

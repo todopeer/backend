@@ -16,6 +16,33 @@ import (
 	"github.com/todopeer/backend/util/highorder"
 )
 
+// EventCreate is the resolver for the eventCreate field.
+func (r *mutationResolver) EventCreate(ctx context.Context, taskID int64, input model.EventCreateInput) (*model.Event, error) {
+	user := auth.UserFromContext(ctx)
+	task, err := r.taskOrm.GetTaskByID(taskID)
+	if err != nil {
+		return nil, err
+	}
+	if task == nil {
+		return nil, ErrNotFound
+	}
+
+	if user.ID != *task.UserID {
+		return nil, ErrUnauthorized
+	}
+
+	event := &orm.Event{
+		UserID:      &user.ID,
+		TaskID:      &task.ID,
+		StartAt:     &input.StartAt,
+		EndAt:       &input.EndAt,
+		Description: input.Description,
+	}
+
+	err = r.eventOrm.CreateEvent(event)
+	return model.ConvertToGqlEventModel(event), err
+}
+
 // EventUpdate is the resolver for the eventUpdate field.
 func (r *mutationResolver) EventUpdate(ctx context.Context, id int64, input model.EventUpdateInput) (*model.Event, error) {
 	user := auth.UserFromContext(ctx)

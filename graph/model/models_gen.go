@@ -22,6 +22,12 @@ type Event struct {
 	Description *string    `json:"description,omitempty"`
 }
 
+type EventCreateInput struct {
+	StartAt     time.Time `json:"startAt"`
+	EndAt       time.Time `json:"endAt"`
+	Description *string   `json:"description,omitempty"`
+}
+
 type EventUpdateInput struct {
 	StartAt     *time.Time `json:"startAt,omitempty"`
 	EndAt       *time.Time `json:"endAt,omitempty"`
