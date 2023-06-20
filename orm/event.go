@@ -197,7 +197,9 @@ func validateStartEndTime(event *Event) error {
 	return nil
 }
 
-// UpdateEvent with optional user field. If passed in, would check if user.runningEvent matches the current event -- if so, pause event if updating event by assigning the eventID
+// UpdateEvent with optional user field. If passed in, would check:
+// 1. if user.runningEvent matches the current event -- if so, pause event if updating event by assigning the eventID
+// 2. if updating to a different ID -- if so, update the runningTaskID field on user
 func (e *EventOrm) UpdateEvent(event *Event, user *User) error {
 	err := validateStartEndTime(event)
 	if err != nil {
@@ -209,21 +211,30 @@ func (e *EventOrm) UpdateEvent(event *Event, user *User) error {
 			return err
 		}
 
-		if user.RunningEventID != nil && *user.RunningEventID == event.ID && event.EndAt != nil {
-			// pause the running task
-			if user.RunningTaskID != nil {
-				err := tx.Table("tasks").Where("id = ? AND status = ?", *user.RunningTaskID, TaskStatusDoing).Update("status", TaskStatusPaused).Error
+		if user.RunningEventID != nil && *user.RunningEventID == event.ID {
+			if event.EndAt != nil { // event pausing
+				// pause the running task
+				if user.RunningTaskID != nil {
+					err := tx.Table("tasks").Where("id IN (?) AND status = ?", []int64{*user.RunningTaskID, *event.TaskID}, TaskStatusDoing).Update("status", TaskStatusPaused).Error
+					if err != nil {
+						return err
+					}
+				}
+				// clear the user info
+				err = tx.Model(user).Update(map[string]interface{}{
+					"running_task_id":  nil,
+					"running_event_id": nil,
+				}).Error
 				if err != nil {
 					return err
 				}
-			}
-			// clear the user info
-			err = tx.Model(user).Update(map[string]interface{}{
-				"running_task_id": nil,
-				"running_event_id": nil,
-			}).Error
-			if err != nil {
-				return err
+			} else { // still running
+				// event updated to a different taskID
+				if user.RunningTaskID != nil && *user.RunningTaskID != *event.TaskID {
+					err = tx.Model(user).Update(map[string]interface{}{
+						"running_task_id": *event.TaskID,
+					}).Error
+				}
 			}
 		}
 
