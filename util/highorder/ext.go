@@ -18,15 +18,3 @@ func Uniq[T comparable](arr []T) []T {
 	}
 	return res
 }
-
-// All runs fns one by one, would return the first error it encounters
-func All(fns ...func()error) error {
-	for _, fn := range fns {
-		err := fn()
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}

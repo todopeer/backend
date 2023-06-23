@@ -58,6 +58,7 @@ type MutationResolver interface {
 	EventRemove(ctx context.Context, id int64) (*model.Event, error)
 	TaskCreate(ctx context.Context, input model.TaskCreateInput) (*model.Task, error)
 	TaskUpdate(ctx context.Context, id int64, input model.TaskUpdateInput) (*model.Task, error)
+	TaskStart(ctx context.Context, id int64, input model.TaskStartInput) (*model.TaskStartResp, error)
 	TaskRemove(ctx context.Context, id int64) (*model.Task, error)
 	Login(ctx context.Context, input model.LoginInput) (*model.AuthPayload, error)
 	Logout(ctx context.Context) (bool, error)
@@ -110,6 +111,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputQueryUserTasksInput,
 		ec.unmarshalInputTaskCreateInput,
 		ec.unmarshalInputTaskEventQueryInput,
+		ec.unmarshalInputTaskStartInput,
 		ec.unmarshalInputTaskUpdateInput,
 		ec.unmarshalInputUserUpdateInput,
 	)
@@ -299,6 +301,30 @@ func (ec *executionContext) field_Mutation_taskRemove_args(ctx context.Context, 
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_taskStart_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 model.TaskStartInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg1, err = ec.unmarshalNTaskStartInput2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskStartInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
 	return args, nil
 }
 
@@ -1311,6 +1337,87 @@ func (ec *executionContext) fieldContext_Mutation_taskUpdate(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_taskUpdate_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_taskStart(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_taskStart(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().TaskStart(rctx, fc.Args["id"].(int64), fc.Args["input"].(model.TaskStartInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.TaskStartResp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/todopeer/backend/graph/model.TaskStartResp`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.TaskStartResp)
+	fc.Result = res
+	return ec.marshalNTaskStartResp2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskStartResp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_taskStart(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "task":
+				return ec.fieldContext_TaskStartResp_task(ctx, field)
+			case "event":
+				return ec.fieldContext_TaskStartResp_event(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TaskStartResp", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_taskStart_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -2999,6 +3106,123 @@ func (ec *executionContext) fieldContext_Task_events(ctx context.Context, field 
 	if fc.Args, err = ec.field_Task_events_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TaskStartResp_task(ctx context.Context, field graphql.CollectedField, obj *model.TaskStartResp) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TaskStartResp_task(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Task, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Task)
+	fc.Result = res
+	return ec.marshalNTask2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTask(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TaskStartResp_task(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TaskStartResp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Task_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Task_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Task_description(ctx, field)
+			case "status":
+				return ec.fieldContext_Task_status(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Task_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Task_updatedAt(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Task_deletedAt(ctx, field)
+			case "dueDate":
+				return ec.fieldContext_Task_dueDate(ctx, field)
+			case "events":
+				return ec.fieldContext_Task_events(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Task", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TaskStartResp_event(ctx context.Context, field graphql.CollectedField, obj *model.TaskStartResp) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TaskStartResp_event(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Event, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Event)
+	fc.Result = res
+	return ec.marshalOEvent2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐEvent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TaskStartResp_event(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TaskStartResp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Event_id(ctx, field)
+			case "taskID":
+				return ec.fieldContext_Event_taskID(ctx, field)
+			case "startAt":
+				return ec.fieldContext_Event_startAt(ctx, field)
+			case "endAt":
+				return ec.fieldContext_Event_endAt(ctx, field)
+			case "description":
+				return ec.fieldContext_Event_description(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Event", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -5640,6 +5864,44 @@ func (ec *executionContext) unmarshalInputTaskEventQueryInput(ctx context.Contex
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputTaskStartInput(ctx context.Context, obj interface{}) (model.TaskStartInput, error) {
+	var it model.TaskStartInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"description", "startAt"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "description":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Description = data
+		case "startAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startAt"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StartAt = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputTaskUpdateInput(ctx context.Context, obj interface{}) (model.TaskUpdateInput, error) {
 	var it model.TaskUpdateInput
 	asMap := map[string]interface{}{}
@@ -5904,6 +6166,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_taskUpdate(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "taskStart":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_taskStart(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -6298,6 +6569,38 @@ func (ec *executionContext) _Task(ctx context.Context, sel ast.SelectionSet, obj
 				return innerFunc(ctx)
 
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var taskStartRespImplementors = []string{"TaskStartResp"}
+
+func (ec *executionContext) _TaskStartResp(ctx context.Context, sel ast.SelectionSet, obj *model.TaskStartResp) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, taskStartRespImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TaskStartResp")
+		case "task":
+
+			out.Values[i] = ec._TaskStartResp_task(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "event":
+
+			out.Values[i] = ec._TaskStartResp_event(ctx, field, obj)
+
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -6988,6 +7291,25 @@ func (ec *executionContext) marshalNTask2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋ
 func (ec *executionContext) unmarshalNTaskCreateInput2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskCreateInput(ctx context.Context, v interface{}) (model.TaskCreateInput, error) {
 	res, err := ec.unmarshalInputTaskCreateInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNTaskStartInput2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskStartInput(ctx context.Context, v interface{}) (model.TaskStartInput, error) {
+	res, err := ec.unmarshalInputTaskStartInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTaskStartResp2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskStartResp(ctx context.Context, sel ast.SelectionSet, v model.TaskStartResp) graphql.Marshaler {
+	return ec._TaskStartResp(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTaskStartResp2ᚖgithubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskStartResp(ctx context.Context, sel ast.SelectionSet, v *model.TaskStartResp) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TaskStartResp(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNTaskStatus2githubᚗcomᚋtodopeerᚋbackendᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, v interface{}) (model.TaskStatus, error) {

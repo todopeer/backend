@@ -6,6 +6,7 @@ package resolver
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Shopify/hoff"
 	"github.com/jinzhu/gorm"
@@ -51,11 +52,35 @@ func (r *mutationResolver) TaskUpdate(ctx context.Context, id int64, input model
 	}
 
 	changes := input.ChangesAsTask()
+	if changes.Status != nil && *changes.Status == orm.TaskStatusDoing {
+		return nil, fmt.Errorf("to change status to doing, use taskStart instead")
+	}
 	if err := r.taskOrm.UpdateTask(task, changes, user); err != nil {
 		return nil, err
 	}
 
 	return model.ConvertToGqlTaskModel(task), nil
+}
+
+// TaskStart is the resolver for the taskStart field.
+func (r *mutationResolver) TaskStart(ctx context.Context, id int64, input model.TaskStartInput) (*model.TaskStartResp, error) {
+	user := auth.UserFromContext(ctx)
+	task, err := r.taskOrm.GetTaskByID(id)
+	if err != nil {
+		return nil, err
+	}
+	if task == nil {
+		return nil, ErrNotFound
+	}
+	evt, err := r.taskOrm.StartTask(task, user, input.Description, input.StartAt)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.TaskStartResp{
+		Task:  model.ConvertToGqlTaskModel(task),
+		Event: model.ConvertToGqlEventModel(evt),
+	}, nil
 }
 
 // TaskRemove is the resolver for the taskRemove field.

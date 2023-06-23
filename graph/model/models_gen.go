@@ -88,6 +88,16 @@ type TaskEventQueryInput struct {
 	OrderAsc *bool  `json:"orderAsc,omitempty"`
 }
 
+type TaskStartInput struct {
+	Description *string    `json:"description,omitempty"`
+	StartAt     *time.Time `json:"startAt,omitempty"`
+}
+
+type TaskStartResp struct {
+	Task  *Task  `json:"task"`
+	Event *Event `json:"event,omitempty"`
+}
+
 type TaskUpdateInput struct {
 	Name        *string     `json:"name,omitempty"`
 	Description *string     `json:"description,omitempty"`

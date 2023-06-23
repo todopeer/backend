@@ -5,6 +5,10 @@ import (
 )
 
 func ConvertToGqlPublicUserModel(user *orm.User) *UserPublic {
+	if user == nil {
+		return nil
+	}
+
 	return &UserPublic{
 		ID:            user.ID,
 		Username:      user.Username,
@@ -14,6 +18,10 @@ func ConvertToGqlPublicUserModel(user *orm.User) *UserPublic {
 }
 
 func ConvertToGqlUserModel(user *orm.User) *User {
+	if user == nil {
+		return nil
+	}
+
 	return &User{
 		ID:             user.ID,
 		Email:          user.Email,
@@ -25,6 +33,10 @@ func ConvertToGqlUserModel(user *orm.User) *User {
 }
 
 func ConvertToGqlTaskModel(task *orm.Task) *Task {
+	if task == nil {
+		return nil
+	}
+
 	status := AllTaskStatus[*task.Status]
 
 	return &Task{
@@ -40,6 +52,10 @@ func ConvertToGqlTaskModel(task *orm.Task) *Task {
 }
 
 func ConvertToGqlEventModel(e *orm.Event) *Event {
+	if e == nil {
+		return nil
+	}
+
 	return &Event{
 		ID:          e.ID,
 		TaskID:      *e.TaskID,

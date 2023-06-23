@@ -36,6 +36,7 @@ input TaskUpdateInput {
 	name: String
 	description: String
 	dueDate: Time
+	# if want to mark as "doing", use TaskStart instead
 	status: TaskStatus
 }
 
@@ -80,8 +81,23 @@ extend type Query {
 	userTasks(username: String!): QueryUserTaskResult!
 }
 
+input TaskStartInput {
+	# if provided, would put it onto event
+	description: String
+
+	# if provided, start event at that specific timing instead of now
+	startAt: Time
+}
+type TaskStartResp {
+	task: Task!
+
+	# would only be there if it's a newly created event
+	event: Event
+}
+
 extend type Mutation {
 	taskCreate(input: TaskCreateInput!): Task! @auth
 	taskUpdate(id: ID!, input: TaskUpdateInput!): Task! @auth
+	taskStart(id: ID!, input: TaskStartInput!): TaskStartResp! @auth
 	taskRemove(id: ID!): Task! @auth
 }

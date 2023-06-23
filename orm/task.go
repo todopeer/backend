@@ -69,6 +69,91 @@ func (t *TaskORM) CreateTask(task *Task) error {
 }
 
 // UpdateTask updates an existing task. the `changes` & `user` must be provided
+func (t *TaskORM) StartTask(task *Task, user *User, eventDesc *string, eventStartAt *time.Time) (*Event, error) {
+	/*  cases 1: any other status -> doing
+	1. if got current running task, update it to paused; update event `end_at` field
+	2. set current running task to this one. Create a new Event
+	*/
+
+	if eventStartAt == nil {
+		now := time.Now()
+		eventStartAt = &now
+	}
+
+	var newRunningEventID *int64
+
+	var evt *Event
+	err := t.db.Transaction(func(tx *gorm.DB) error {
+		return highorder.All(
+			// update current running task
+			highorder.Branch(user.RunningTaskID != nil,
+				// running task is a different one
+				highorder.BranchF(func() bool { return *user.RunningTaskID != task.ID }, func() error {
+					// stop previous running task & event
+					return highorder.All(
+						func() error {
+							return tx.Table("tasks").Where("id = ? AND status = ?", *user.RunningTaskID, TaskStatusDoing).Update("status", TaskStatusPaused).Error
+						},
+						func() error {
+							return tx.Table("events").Where("task_id = ? AND end_at IS NULL", *user.RunningTaskID).Update("end_at", eventStartAt).Error
+						},
+					)
+				}, func() error {
+					// the currently running event
+					if user.RunningEventID != nil {
+						// update event desc, if provided
+						if eventDesc != nil {
+							if err := tx.Table("events").Where("id = ?", *user.RunningEventID).Update("description", *eventDesc).Error; err != nil {
+								return err
+							}
+						}
+						// and record the running event
+						newRunningEventID = user.RunningEventID
+					} else {
+						log.Printf("unexpected: RunningEventID not set. TaskID: %d", task.ID)
+					}
+					return nil
+				}), nil,
+			),
+
+			func() error {
+				// task to be doing
+				return tx.Table("tasks").Where("id = ?", task.ID).Update("status", TaskStatusDoing).Error
+			},
+
+			// update task & event info; only if we need to update Event
+			highorder.Branch(newRunningEventID == nil, func() error {
+				return highorder.All(
+					func() error {
+						evt = &Event{
+							UserID:      &user.ID,
+							TaskID:      &task.ID,
+							StartAt:     eventStartAt,
+							Description: eventDesc,
+						}
+						if err := tx.Create(evt).Error; err != nil {
+							return err
+						}
+
+						newRunningEventID = &evt.ID
+						return nil
+					},
+
+					func() error {
+						userFieldToUpdate := map[string]interface{}{
+							"running_task_id":  task.ID,
+							"running_event_id": *newRunningEventID,
+						}
+
+						return tx.Model(user).Update(userFieldToUpdate).Error
+					},
+				)
+			}, nil),
+		)
+	})
+	return evt, err
+}
+
 func (t *TaskORM) UpdateTask(current, changes *Task, user *User) error {
 	// just in case if changes ID not set, set it
 	if changes.ID == 0 {
@@ -79,75 +164,35 @@ func (t *TaskORM) UpdateTask(current, changes *Task, user *User) error {
 	runningTaskID := user.RunningTaskID
 
 	return t.db.Transaction(func(tx *gorm.DB) error {
-		/*  cases 1: any other status -> doing
-		1. if got current running task, update it to paused; update event `end_at` field
-		2. set current running task to this one. Create a new Event
-
-			case 2: any other status -> paused/done
-		1. if current running task is this one, clear it;
-		2. update event `end_at` field, if there's any
+		/*
+				case 2: any other status -> paused/done
+			1. if current running task is this one, clear it;
+			2. update event `end_at` field, if there's any
 		*/
 		if changes.Status != nil && *changes.Status == *current.Status {
 			changes.Status = nil
 		}
 
-		// chagne on status
-		if changes.Status != nil {
-			if *changes.Status == TaskStatusDoing {
-				shouldCreateEvent := true
-
-				if runningTaskID != nil {
-					if *runningTaskID != current.ID {
-						// update the previous running task to be paused
-						if err := tx.Table("tasks").Where("id = ? AND status = ?", *runningTaskID, TaskStatusDoing).Update("status", TaskStatusPaused).Error; err != nil {
-							return err
-						}
-
-						// stop previous running event as well
-						if err := tx.Table("events").Where("task_id = ? AND end_at IS NULL", *runningTaskID).Update("end_at", &now).Error; err != nil {
-							return err
-						}
-					} else {
-						log.Printf("Error: task(id=%d) is running but previous status isn't", current.ID)
-						shouldCreateEvent = false
-					}
-				}
-
-				userFieldToUpdate := map[string]interface{}{
-					"running_task_id": current.ID,
-				}
-				if shouldCreateEvent {
-					evt := &Event{
-						UserID:  &user.ID,
-						TaskID:  &current.ID,
-						StartAt: &now,
-					}
-					if err := tx.Create(evt).Error; err != nil {
-						return err
-					}
-
-					userFieldToUpdate["running_event_id"] = evt.ID
-				}
-
-				err := tx.Model(user).Update(userFieldToUpdate).Error
-				if err != nil {
-					return err
-				}
-
-			} else {
-				if runningTaskID != nil && *runningTaskID == current.ID {
-					if err := tx.Model(user).Update("running_task_id", nil).Error; err != nil {
-						return err
-					}
-
-					if err := tx.Table("events").Where("task_id = ? AND end_at IS NULL", current.ID).Update("end_at", &now).Error; err != nil {
-						return nil
-					}
-				}
+		return highorder.All(func() error {
+			// make sure we're operating on the doing task
+			if changes.Status == nil || runningTaskID == nil || *runningTaskID != current.ID {
+				return nil
 			}
-		}
 
-		return tx.Model(current).Update(changes).Error
+			// clear the doing status, stop event
+			return highorder.All(func() error {
+				return tx.Model(user).Update(map[string]any{
+					"running_task_id":  nil,
+					"running_event_id": nil,
+				}).Error
+			}, func() error {
+				return tx.Table("events").
+					Where("task_id = ? AND end_at IS NULL", current.ID).
+					Update("end_at", &now).Error
+			})
+		}, func() error {
+			return tx.Model(current).Update(changes).Error
+		})
 	})
 }
 
@@ -157,7 +202,7 @@ func (t *TaskORM) DeleteTask(task *Task, user *User) error {
 	return t.db.Transaction(func(tx *gorm.DB) error {
 		return highorder.All(
 			func() error { return tx.Delete(task).Error },
-			func() error { 
+			func() error {
 				// running task -- in that case, remove the running event as well
 				if user == nil || user.RunningTaskID == nil || *user.RunningTaskID != task.ID {
 					return nil
@@ -177,8 +222,8 @@ func (t *TaskORM) DeleteTask(task *Task, user *User) error {
 							"running_task_id":  nil,
 							"running_event_id": nil,
 						}).Error
-					}, 
-				) 
+					},
+				)
 			},
 		)
 	})
