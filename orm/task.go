@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"github.com/todopeer/backend/util/highorder"
 )
 
 const (
@@ -153,22 +154,33 @@ func (t *TaskORM) UpdateTask(current, changes *Task, user *User) error {
 // DeleteTask deletes a task
 // if user is passed in, then also check if user.Running task is this task
 func (t *TaskORM) DeleteTask(task *Task, user *User) error {
-	now := time.Now()
 	return t.db.Transaction(func(tx *gorm.DB) error {
-		err := tx.Delete(task).Error
-		if err != nil {
-			return err
-		}
+		return highorder.All(
+			func() error { return tx.Delete(task).Error },
+			func() error { 
+				// running task -- in that case, remove the running event as well
+				if user == nil || user.RunningTaskID == nil || *user.RunningTaskID != task.ID {
+					return nil
+				}
 
-		if user != nil && user.RunningTaskID != nil && *user.RunningTaskID == task.ID {
-			return tx.Model(&user).Update(map[string]interface{}{
-				"running_task_id":  nil,
-				"running_event_id": nil,
-			}).Error
-		}
+				return highorder.All(
+					func() error {
+						if user.RunningEventID == nil {
+							// actually error case -- when we set the runningTaskID, but not the eventID
+							log.Printf("warn: user RunningEvent is nil for runningtask(id=%d)", task.ID)
+							return nil
+						}
 
-		// also stop events
-		return tx.Table("events").Where("task_id = ? AND end_at IS NULL", task.ID).Update("end_at", now).Error
+						return tx.Delete(&Event{ID: *user.RunningEventID}).Error
+					}, func() error {
+						return tx.Model(&user).Update(map[string]interface{}{
+							"running_task_id":  nil,
+							"running_event_id": nil,
+						}).Error
+					}, 
+				) 
+			},
+		)
 	})
 }
 
