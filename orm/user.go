@@ -2,10 +2,11 @@ package orm
 
 import (
 	"context"
+	"errors"
 	"time"
 
-	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type User struct {
@@ -48,7 +49,7 @@ func (u *User) SetPassword(password string) error {
 func (u *UserORM) GetUserByEmail(email string) (*User, error) {
 	user := &User{}
 	if err := u.db.Where("email = ?", email).First(user).Error; err != nil {
-		if gorm.IsRecordNotFoundError(err) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 		return nil, err
@@ -63,7 +64,7 @@ func (u *UserORM) CreateUser(user *User) error {
 
 // UpdateUser updates an existing user
 func (u *UserORM) UpdateUser(user *User) error {
-	return u.db.Model(user).Update(user).Error
+	return u.db.Model(user).Updates(user).Error
 }
 
 // DeleteUser deletes a user
@@ -87,8 +88,4 @@ func (o *UserORM) GetUserByUsername(ctx context.Context, username string) (*User
 		return nil, err
 	}
 	return res, nil
-}
-
-func ptrInt(v int) *int {
-	return &v
 }

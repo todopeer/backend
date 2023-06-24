@@ -7,13 +7,13 @@ import (
 	"os"
 	"strings"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"gorm.io/gorm"
+	"gorm.io/driver/sqlite"
 	"github.com/todopeer/backend/orm"
 )
 
 func main() {
-	db, err := gorm.Open("sqlite3", orm.DBPATH)
+	db, err := gorm.Open(sqlite.Open(orm.DBPATH), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Failed to open database: %v", err)
 	}

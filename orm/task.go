@@ -1,11 +1,13 @@
 package orm
 
 import (
+	"errors"
 	"log"
 	"time"
 
-	"github.com/jinzhu/gorm"
 	"github.com/todopeer/backend/util/highorder"
+
+	"gorm.io/gorm"
 )
 
 const (
@@ -145,7 +147,7 @@ func (t *TaskORM) StartTask(task *Task, user *User, eventDesc *string, eventStar
 							"running_event_id": *newRunningEventID,
 						}
 
-						return tx.Model(user).Update(userFieldToUpdate).Error
+						return tx.Model(user).Updates(userFieldToUpdate).Error
 					},
 				)
 			}, nil),
@@ -181,7 +183,7 @@ func (t *TaskORM) UpdateTask(current, changes *Task, user *User) error {
 
 			// clear the doing status, stop event
 			return highorder.All(func() error {
-				return tx.Model(user).Update(map[string]any{
+				return tx.Model(user).Updates(map[string]any{
 					"running_task_id":  nil,
 					"running_event_id": nil,
 				}).Error
@@ -191,7 +193,7 @@ func (t *TaskORM) UpdateTask(current, changes *Task, user *User) error {
 					Update("end_at", &now).Error
 			})
 		}, func() error {
-			return tx.Model(current).Update(changes).Error
+			return tx.Model(current).Updates(changes).Error
 		})
 	})
 }
@@ -218,7 +220,7 @@ func (t *TaskORM) DeleteTask(task *Task, user *User) error {
 
 						return tx.Delete(&Event{ID: *user.RunningEventID}).Error
 					}, func() error {
-						return tx.Model(&user).Update(map[string]interface{}{
+						return tx.Model(&user).Updates(map[string]interface{}{
 							"running_task_id":  nil,
 							"running_event_id": nil,
 						}).Error
@@ -233,7 +235,7 @@ func (t *TaskORM) DeleteTask(task *Task, user *User) error {
 func (t *TaskORM) GetTaskByID(id int64) (*Task, error) {
 	task := &Task{}
 	if err := t.db.First(task, id).Error; err != nil {
-		if gorm.IsRecordNotFoundError(err) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 		return nil, err
@@ -255,7 +257,7 @@ func GetTasksWithOrder(field string, dir *string) QueryTaskOptionFunc {
 		if dir != nil {
 			query += " " + *dir
 		}
-		return db.Order(query, true)
+		return db.Order(query)
 	}
 }
 

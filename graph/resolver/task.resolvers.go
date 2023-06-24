@@ -9,11 +9,11 @@ import (
 	"fmt"
 
 	"github.com/Shopify/hoff"
-	"github.com/jinzhu/gorm"
 	"github.com/todopeer/backend/graph"
 	"github.com/todopeer/backend/graph/model"
 	"github.com/todopeer/backend/orm"
 	"github.com/todopeer/backend/services/auth"
+	"gorm.io/gorm"
 )
 
 // TaskCreate is the resolver for the taskCreate field.

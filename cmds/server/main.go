@@ -7,16 +7,16 @@ import (
 	"net/http"
 	"os"
 
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/jinzhu/gorm"
 	"github.com/rs/cors"
 	"github.com/todopeer/backend/graph"
 	"github.com/todopeer/backend/graph/resolver"
 	"github.com/todopeer/backend/orm"
 	"github.com/todopeer/backend/services/auth"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
 const defaultPort = "8081"
@@ -34,11 +34,10 @@ func main() {
 		auth.SetJWTKey(secret)
 	}
 
-	db, err := gorm.Open("sqlite3", orm.DBPATH)
+	db, err := gorm.Open(sqlite.Open(orm.DBPATH), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Failed to open database: %v", err)
 	}
-	defer db.Close()
 
 	userOrm := orm.NewUserORM(db)
 

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type Event struct {
@@ -78,7 +78,7 @@ func (e *EventOrm) GetUserEventsRange(userid int64, startTime, endTime time.Time
 			userid, startTime, endTime, startTime, endTime, startTime).Order("start_at DESC")
 
 	if cfg.limit != nil {
-		query = query.Limit(*cfg.limit)
+		query = query.Limit(int(*cfg.limit))
 	}
 
 	if err := query.Find(&res).Error; err != nil {
@@ -91,7 +91,7 @@ func (e *EventOrm) GetUserEventsRange(userid int64, startTime, endTime time.Time
 func (t *EventOrm) GetEventByID(id int64) (*Event, error) {
 	event := &Event{}
 	if err := t.db.First(event, id).Error; err != nil {
-		if gorm.IsRecordNotFoundError(err) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 		return nil, err
@@ -221,7 +221,7 @@ func (e *EventOrm) UpdateEvent(event *Event, user *User) error {
 					}
 				}
 				// clear the user info
-				err = tx.Model(user).Update(map[string]interface{}{
+				err = tx.Model(user).Updates(map[string]interface{}{
 					"running_task_id":  nil,
 					"running_event_id": nil,
 				}).Error
@@ -231,7 +231,7 @@ func (e *EventOrm) UpdateEvent(event *Event, user *User) error {
 			} else { // still running
 				// event updated to a different taskID
 				if user.RunningTaskID != nil && *user.RunningTaskID != *event.TaskID {
-					err = tx.Model(user).Update(map[string]interface{}{
+					err = tx.Model(user).Updates(map[string]interface{}{
 						"running_task_id": *event.TaskID,
 					}).Error
 				}
