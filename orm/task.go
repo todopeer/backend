@@ -27,7 +27,7 @@ type Task struct {
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
 
-	DeletedAt *time.Time
+	DeletedAt *gorm.DeletedAt
 
 	DueDate *time.Time
 }
@@ -70,7 +70,7 @@ func (t *TaskORM) CreateTask(task *Task) error {
 	return t.db.Create(task).Error
 }
 
-// UpdateTask updates an existing task. the `changes` & `user` must be provided
+// StartTask updates an existing task. the `changes` & `user` must be provided
 func (t *TaskORM) StartTask(task *Task, user *User, eventDesc *string, eventStartAt *time.Time) (*Event, error) {
 	/*  cases 1: any other status -> doing
 	1. if got current running task, update it to paused; update event `end_at` field
@@ -156,12 +156,8 @@ func (t *TaskORM) StartTask(task *Task, user *User, eventDesc *string, eventStar
 	return evt, err
 }
 
+// UpdateTask can also update a deleted task
 func (t *TaskORM) UpdateTask(current, changes *Task, user *User) error {
-	// just in case if changes ID not set, set it
-	if changes.ID == 0 {
-		changes.ID = current.ID
-	}
-
 	now := time.Now()
 	runningTaskID := user.RunningTaskID
 
@@ -193,7 +189,7 @@ func (t *TaskORM) UpdateTask(current, changes *Task, user *User) error {
 					Update("end_at", &now).Error
 			})
 		}, func() error {
-			return tx.Model(current).Updates(changes).Error
+			return tx.Unscoped().Model(current).Updates(changes).Error
 		})
 	})
 }

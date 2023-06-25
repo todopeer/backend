@@ -83,15 +83,15 @@ func (r *mutationResolver) TaskStart(ctx context.Context, id int64, input model.
 	}, nil
 }
 
-// TaskRemove is the resolver for the taskRemove field.
-func (r *mutationResolver) TaskRemove(ctx context.Context, id int64) (*model.Task, error) {
+// TaskDelete is the resolver for the taskDelete field.
+func (r *mutationResolver) TaskDelete(ctx context.Context, id int64) (*model.Task, error) {
 	user := auth.UserFromContext(ctx)
 	task, err := r.taskOrm.GetTaskByID(id)
 	if err != nil {
 		return nil, err
 	}
 	if task == nil {
-		return nil, gorm.ErrRecordNotFound
+		return nil, ErrNotFound
 	}
 
 	if *task.UserID != user.ID {
@@ -104,6 +104,25 @@ func (r *mutationResolver) TaskRemove(ctx context.Context, id int64) (*model.Tas
 	}
 
 	return model.ConvertToGqlTaskModel(task), nil
+}
+
+// TaskUndelete is the resolver for the taskUndelete field.
+func (r *mutationResolver) TaskUndelete(ctx context.Context, id int64) (*model.Task, error) {
+	user := auth.UserFromContext(ctx)
+	tasks, err := r.taskOrm.GetTasksByIDs([]int64{id}, orm.GetTasksByIDsOptionWithDeleted)
+	if err != nil {
+		return nil, err
+	}
+	if len(tasks) == 0 {
+		return nil, ErrNotFound
+	}
+	task := tasks[0]
+	if *task.UserID != user.ID {
+		return nil, ErrUnauthorized
+	}
+
+	err = r.taskOrm.UpdateTask(task, &orm.Task{DeletedAt: &gorm.DeletedAt{}}, user)
+	return model.ConvertToGqlTaskModel(task), err
 }
 
 // Tasks is the resolver for the tasks field.

@@ -87,8 +87,8 @@ func (r *mutationResolver) EventUpdate(ctx context.Context, id int64, input mode
 	return model.ConvertToGqlEventModel(event), r.eventOrm.UpdateEvent(event, user)
 }
 
-// EventRemove is the resolver for the eventRemove field.
-func (r *mutationResolver) EventRemove(ctx context.Context, id int64) (*model.Event, error) {
+// EventDelete is the resolver for the eventDelete field.
+func (r *mutationResolver) EventDelete(ctx context.Context, id int64) (*model.Event, error) {
 	user := auth.UserFromContext(ctx)
 	event, err := r.eventOrm.GetEventByID(id)
 	if err != nil {

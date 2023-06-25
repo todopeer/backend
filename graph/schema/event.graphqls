@@ -45,5 +45,5 @@ extend type Query {
 extend type Mutation {
     eventCreate(taskID: ID!, input: EventCreateInput!): Event! @auth
     eventUpdate(id: ID!, input: EventUpdateInput!): Event! @auth
-    eventRemove(id: ID!): Event! @auth
+    eventDelete(id: ID!): Event! @auth
 }

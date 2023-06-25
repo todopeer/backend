@@ -99,5 +99,6 @@ extend type Mutation {
 	taskCreate(input: TaskCreateInput!): Task! @auth
 	taskUpdate(id: ID!, input: TaskUpdateInput!): Task! @auth
 	taskStart(id: ID!, input: TaskStartInput!): TaskStartResp! @auth
-	taskRemove(id: ID!): Task! @auth
+	taskDelete(id: ID!): Task! @auth
+	taskUndelete(id: ID!): Task! @auth
 }

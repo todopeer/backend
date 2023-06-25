@@ -38,8 +38,7 @@ func ConvertToGqlTaskModel(task *orm.Task) *Task {
 	}
 
 	status := AllTaskStatus[*task.Status]
-
-	return &Task{
+	r := &Task{
 		ID:          task.ID,
 		Name:        *task.Name,
 		Description: task.Description,
@@ -47,8 +46,12 @@ func ConvertToGqlTaskModel(task *orm.Task) *Task {
 		DueDate:     task.DueDate,
 		CreatedAt:   *task.CreatedAt,
 		UpdatedAt:   *task.UpdatedAt,
-		DeletedAt:   task.DeletedAt,
 	}
+	if task.DeletedAt != nil && task.DeletedAt.Valid {
+		r.DeletedAt = &task.DeletedAt.Time
+	}
+
+	return r
 }
 
 func ConvertToGqlEventModel(e *orm.Event) *Event {
