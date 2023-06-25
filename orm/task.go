@@ -171,9 +171,8 @@ func (t *TaskORM) UpdateTask(current, changes *Task, user *User) error {
 			changes.Status = nil
 		}
 		// for deleted task, running task would be set to paused
-		if changes.DeletedAt != nil && changes.DeletedAt.Valid && changes.Status == nil && *current.Status == TaskStatusDoing {
-			status := TaskStatusPaused
-			changes.Status = &status
+		if changes.DeletedAt != nil && changes.DeletedAt.Valid {
+			return errors.New("to delete task, use DeleteTask instead")
 		}
 
 		return highorder.All(func() error {
@@ -181,7 +180,7 @@ func (t *TaskORM) UpdateTask(current, changes *Task, user *User) error {
 			if runningTaskID == nil || *runningTaskID != current.ID {
 				return nil
 			}
-			if changes.Status == nil && (changes.DeletedAt != nil && changes.DeletedAt.Valid) {
+			if changes.Status == nil {
 				return nil
 			}
 
@@ -207,7 +206,14 @@ func (t *TaskORM) UpdateTask(current, changes *Task, user *User) error {
 func (t *TaskORM) DeleteTask(task *Task, user *User) error {
 	return t.db.Transaction(func(tx *gorm.DB) error {
 		return highorder.All(
-			func() error { return tx.Delete(task).Error },
+			func() error {
+				change := &Task{DeletedAt: &gorm.DeletedAt{Valid: true, Time: time.Now()}}
+				if *task.Status == TaskStatusDoing {
+					paused := TaskStatusPaused
+					change.Status = &paused
+				}
+				return tx.Model(task).Updates(change).Error
+			},
 			func() error {
 				// running task -- in that case, remove the running event as well
 				if user == nil || user.RunningTaskID == nil || *user.RunningTaskID != task.ID {
