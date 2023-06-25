@@ -170,10 +170,18 @@ func (t *TaskORM) UpdateTask(current, changes *Task, user *User) error {
 		if changes.Status != nil && *changes.Status == *current.Status {
 			changes.Status = nil
 		}
+		// for deleted task, running task would be set to paused
+		if changes.DeletedAt != nil && changes.DeletedAt.Valid && changes.Status == nil && *current.Status == TaskStatusDoing {
+			status := TaskStatusPaused
+			changes.Status = &status
+		}
 
 		return highorder.All(func() error {
 			// make sure we're operating on the doing task
-			if changes.Status == nil || runningTaskID == nil || *runningTaskID != current.ID {
+			if runningTaskID == nil || *runningTaskID != current.ID {
+				return nil
+			}
+			if changes.Status == nil && (changes.DeletedAt != nil && changes.DeletedAt.Valid) {
 				return nil
 			}
 
