@@ -2,6 +2,7 @@ package orm
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"time"
 
@@ -13,7 +14,7 @@ type User struct {
 	ID             int64  `gorm:"primary_key"`
 	Email          string `gorm:"unique;not null"`
 	Name           *string
-	Username       *string `gorm:"unique"`
+	Username       *sql.NullString `gorm:"unique"`
 	PasswordHash   string
 	RunningTaskID  *int64
 	RunningEventID *int64

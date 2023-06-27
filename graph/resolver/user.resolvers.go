@@ -6,6 +6,7 @@ package resolver
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	"github.com/todopeer/backend/graph"
@@ -79,7 +80,11 @@ func (r *mutationResolver) UserUpdate(ctx context.Context, input model.UserUpdat
 	}
 
 	if input.Username != nil {
-		user.Username = input.Username
+		if *input.Username == "" {
+			user.Username = &sql.NullString{}
+		} else {
+			user.Username = &sql.NullString{ String: *input.Username, Valid: true }
+		}
 	}
 
 	if input.Password != nil {

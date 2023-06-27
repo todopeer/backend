@@ -9,12 +9,16 @@ func ConvertToGqlPublicUserModel(user *orm.User) *UserPublic {
 		return nil
 	}
 
-	return &UserPublic{
+	u := &UserPublic{
 		ID:            user.ID,
-		Username:      user.Username,
 		Name:          user.Name,
 		RunningTaskID: user.RunningTaskID,
 	}
+
+	if user.Username.Valid {
+		u.Username = &user.Username.String
+	}
+	return u
 }
 
 func ConvertToGqlUserModel(user *orm.User) *User {
@@ -22,14 +26,19 @@ func ConvertToGqlUserModel(user *orm.User) *User {
 		return nil
 	}
 
-	return &User{
+	u := &User{
 		ID:             user.ID,
 		Email:          user.Email,
 		Name:           user.Name,
-		Username:       user.Username,
 		RunningTaskID:  user.RunningTaskID,
 		RunningEventID: user.RunningEventID,
 	}
+
+	if user.Username.Valid {
+		u.Username = &user.Username.String
+	}
+
+	return u
 }
 
 func ConvertToGqlTaskModel(task *orm.Task) *Task {
