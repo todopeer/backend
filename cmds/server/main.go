@@ -53,7 +53,7 @@ func main() {
 	var srv http.Handler = handler.NewDefaultServer(graph.NewExecutableSchema(c))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	middlewares := []middleware{cors.Default().Handler, auth.AuthMiddleware(userOrm), logRequestBody}
+	middlewares := []middleware{cors.AllowAll().Handler, auth.AuthMiddleware(userOrm), logRequestBody}
 
 	for _, middleware := range middlewares {
 		srv = middleware(srv)
