@@ -11,7 +11,6 @@ import (
 )
 
 var (
-	// TODO: replace this key with ENV variable
 	jwtKey = []byte("to-be-replaced")
 )
 
@@ -21,7 +20,7 @@ func SetJWTKey(key string) {
 }
 
 const (
-	jwtExpireDuration = 72 * time.Hour // Tokens will expire after 72 hours
+	jwtExpireDuration = 180 * 24 * time.Hour // Tokens will expire after half a year
 	jwtIssuer         = "todopeer.com"
 )
 
@@ -35,13 +34,12 @@ func tokenToClaim(tokenStr string) (*jwt.StandardClaims, error) {
 	}
 
 	if !token.Valid {
-		return nil, errors.New("Invalid token")
+		return nil, errors.New("invalid token")
 	}
 
 	claim, ok := token.Claims.(*jwt.StandardClaims)
 	if !ok {
-		token.Claims.Valid().Error()
-		return nil, errors.New("Invalid claim")
+		return nil, fmt.Errorf("invalid claim: %s", token.Claims.Valid().Error())
 	}
 	return claim, nil
 }
