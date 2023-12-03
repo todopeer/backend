@@ -112,6 +112,13 @@ type UserPublic struct {
 	RunningTaskID *int64  `json:"runningTaskID,omitempty"`
 }
 
+type UserRegistrationInput struct {
+	Name     string  `json:"name"`
+	Username *string `json:"username,omitempty"`
+	Email    string  `json:"email"`
+	Password string  `json:"password"`
+}
+
 type UserUpdateInput struct {
 	Name     *string `json:"name,omitempty"`
 	Username *string `json:"username,omitempty"`

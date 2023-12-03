@@ -28,11 +28,19 @@ input UserUpdateInput {
 	password: String
 }
 
+input UserRegistrationInput {
+	name: String!
+	username: String
+	email: String!
+	password: String!
+}
+
 extend type Query {
 	me: User @auth
 }
 
 extend type Mutation {
+	register(input: UserRegistrationInput!): User!
 	login(input: LoginInput!): AuthPayload!
 	logout: Boolean! @auth
 	# userUpdate user can only update him-/herself

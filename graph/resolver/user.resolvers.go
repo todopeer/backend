@@ -14,6 +14,26 @@ import (
 	"github.com/todopeer/backend/services/auth"
 )
 
+// Register is the resolver for the register field.
+func (r *mutationResolver) Register(ctx context.Context, input model.UserRegistrationInput) (*model.User, error) {
+	user, err := r.userORM.GetUserByEmail(input.Email)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user from DB: %v", err)
+	}
+	if user != nil {
+		return nil, fmt.Errorf("user already exists")
+	}
+
+	// create this user
+	user = model.ConvertFromRegistrationInput(&input)
+	err = r.userORM.CreateUser(user)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create user: %v", err)
+	}
+
+	return model.ConvertToGqlUserModel(user), nil
+}
+
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.AuthPayload, error) {
 	// Fetch the user from the DB
@@ -83,7 +103,7 @@ func (r *mutationResolver) UserUpdate(ctx context.Context, input model.UserUpdat
 		if *input.Username == "" {
 			user.Username = &sql.NullString{}
 		} else {
-			user.Username = &sql.NullString{ String: *input.Username, Valid: true }
+			user.Username = &sql.NullString{String: *input.Username, Valid: true}
 		}
 	}
 
