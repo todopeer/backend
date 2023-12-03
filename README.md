@@ -4,6 +4,12 @@ The backend for TodoPeer App
 
 See <https://api.todopeer.com/> for GraphQL APIs
 
+## Setup & Run
+
+- to prepare DB: `go run ./cmds/migrate`
+- to load user: `go run ./cmds/loaduesr`
+- to start server: `go run ./cmds/server`
+
 ## Concepts
 
 For the basic model below, see the graphql page for the exact listing of fields
