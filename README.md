@@ -22,3 +22,16 @@ There're currently 2 projects serving as UI:
 
 - [CLI](https://github.com/todopeer/cli): CMD interface for defining the WebView
 - [Frontend](https://github.com/todopeer/frontend): suppose to be used for both Web & Mobile
+
+## Development
+
+Code Structure
+- `/cmds`: the executables
+- `/orm`:  models
+- `/migrations`: model changes. Run with `./cmds/migrate`
+- `/graph`: the GraphQL related
+    - `/model`: the generated models; also some helper func created by developer
+    - `/schema`: the GQL schema defined
+    - `/resolver`: the generated resolver based on schema
+- `/services`: the folder containing related business logics
+- `/util`: the extenstion of golang's standard library
